@@ -22,16 +22,54 @@ var (
 			import "github.com/MohamedBassem/gormgen"
 			import "github.com/jinzhu/gorm"
 		`)
+
+	templateMainStruct = parseTemplateOrPanic(`
+		type {{.StructName}} {{.StructText}}
+
+		func (t *{{.StructName}}) Save(db *gorm.DB) error {
+
+		}
+
+		func (t *{{.StructName}}) Delete(db *gorm.DB) error {
+
+		}
+	`)
 	templateQueryBuilder = parseTemplateOrPanic(`
-			type {{.StructName}}QueryBuilder struct {
-				order []string 
+			type {{.QueryBuilderName}} struct {
+				order []string
+				where []string
+				limit int
+				offset int
 			}
 
-			func (bd *{{.StructName}}QueryBuilder) 
+			func (qb *{{.QueryBuilderName}}) Count(db *gorm.DB) (int, error) {
+
+			}
+
+			func (qb *{{.QueryBuilderName}}) QueryOne(db *gorm.DB) (*{{.StructName}}, error) {
+
+			}
+
+			func (qb *{{.QueryBuilderName}}) QueryAll(db *gorm.DB) ([]{{.StructName}}, error) {
+
+			}
+
+			func (qb *{{.QueryBuilderName}}) Limit(limit int) *{{.QueryBuilderName}} {
+				qb.limit = limit
+			}
+
+			func (qb *{{.QueryBuilderName}}) Offset(offset int) *{{.QueryBuilderName}} {
+				qb.offset = offset
+			}
 		`)
 	templateWhereFunction = parseTemplateOrPanic(`
-			func Where{{.FieldName}}(p gormgen.Predict, value {{.FieldType}}) {
-				
+			func Where{{.FieldName}}(p gormgen.Predict, value {{.FieldType}}) *{{.QueryBuilderName}} {
+
+			}
+		`)
+	templateOrderByFunction = parseTemplateOrPanic(`
+			func OrderBy{{.FieldName}}(asc bool) *{{.QueryBuilderName}} {
+
 			}
 		`)
 )

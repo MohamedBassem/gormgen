@@ -50,5 +50,14 @@ func main() {
 	parser.ParseDir(wd)
 
 	generator := NewGenerator()
-	generator.Generate("config", parser.GetTypeByName("config"))
+	generator.init()
+	for _, s := range cnf.structs {
+		ast := parser.GetTypeByName(s)
+		if ast == nil {
+			log.Printf("Struct %s is not found\n", s)
+			continue
+		}
+		generator.Generate(parser, s)
+	}
+	generator.Flush()
 }
