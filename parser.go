@@ -8,11 +8,13 @@ import (
 	"go/token"
 	"go/types"
 	"log"
+	"reflect"
+	"strings"
 )
 
 type Parser struct {
 	dir         string
-	types       map[string]*ast.StructType
+	types       map[*ast.Ident]*ast.StructType
 	files       []string
 	parsedFiles []*ast.File
 	fileSet     *token.FileSet
@@ -21,7 +23,7 @@ type Parser struct {
 
 func NewParser() *Parser {
 	return &Parser{
-		types: make(map[string]*ast.StructType),
+		types: make(map[*ast.Ident]*ast.StructType),
 	}
 }
 
@@ -79,7 +81,7 @@ func (p *Parser) parseTypes(file *ast.File) {
 			if structType, ok = typeSpec.Type.(*ast.StructType); !ok {
 				continue
 			}
-			p.types[typeSpec.Name.String()] = structType
+			p.types[typeSpec.Name] = structType
 		}
 		return true
 	})
@@ -96,13 +98,34 @@ func (p *Parser) ParseDir(dir string) {
 }
 
 func (p *Parser) GetTypeByName(name string) *ast.StructType {
-	return p.types[name]
+	for id, v := range p.types {
+		if id.Name == name {
+			return v
+		}
+	}
+	return nil
 }
 
 func (p *Parser) GetIdentByName(name string) *ast.Ident {
-	for id := range p.defs {
+	for id := range p.types {
 		if id.Name == name {
 			return id
+		}
+	}
+	return nil
+}
+
+func (p *Parser) GetFieldTag(structName, fieldName string) *reflect.StructTag {
+	t := p.GetTypeByName(structName)
+	if t == nil {
+		return nil
+	}
+	for _, f := range t.Fields.List {
+		for _, id := range f.Names {
+			if id.Name == fieldName && f.Tag != nil {
+				stag := reflect.StructTag(strings.Trim(f.Tag.Value, "`"))
+				return &stag
+			}
 		}
 	}
 	return nil

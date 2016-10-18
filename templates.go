@@ -107,7 +107,7 @@ var (
 					prefix string
 					value interface{}
 				}{
-					{{index .FieldToColumn .FieldName}} + p.String(),
+					"{{index .FieldToColumn .FieldName}} " + p.String(),
 					value,
 				})
 				return qb
@@ -120,7 +120,7 @@ var (
 					order = "ASC"
 				}
 
-				qb.order = append(qb.order, {{index .FieldToColumn .FieldName}} + order)
+				qb.order = append(qb.order, "{{index .FieldToColumn .FieldName}} " + order)
 				return qb
 			}
 		`)

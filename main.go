@@ -60,4 +60,5 @@ func main() {
 		generator.Generate(parser, s)
 	}
 	generator.Flush()
+
 }

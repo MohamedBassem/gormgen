@@ -6,7 +6,17 @@ import (
 	"go/printer"
 	"go/types"
 	"strings"
+
+	"github.com/jinzhu/gorm"
 )
+
+type fieldConfig struct {
+	FieldToColumn    map[string]string
+	QueryBuilderName string
+	FieldName        string
+	FieldType        string
+	Titelize         func(string) string
+}
 
 type structConfig struct {
 	StructName       string
@@ -54,37 +64,56 @@ func (g *Generator) generateQueryBuilder() {
 	templateQueryBuilder.Execute(g.buf, g.config)
 }
 
-func (g *Generator) generateFieldSpecificTemplates() {
-
+func (g *Generator) buildFieldConfig() []fieldConfig {
 	obj := g.parser.defs[g.parser.GetIdentByName(g.name)]
 	if obj == nil {
 		panic("SHOULDN'T HAPPEN")
 	}
-
 	fieldToColumn := make(map[string]string)
+	fields := []*types.Var{}
 	structType := obj.Type().Underlying().(*types.Struct)
 	for i := 0; i < structType.NumFields(); i++ {
 		field := structType.Field(i)
-		fieldToColumn[field.Name()] = field.Name()
+		if !field.Exported() {
+			continue
+		}
+		tag := g.parser.GetFieldTag(g.name, field.Name())
+		fieldToColumn[field.Name()] = gorm.ToDBName(field.Name())
+		if tag != nil {
+			if gormt, ok := tag.Lookup("gorm"); ok {
+				if gormt == "-" {
+					continue
+				}
+				parts := strings.Split(gormt, ";")
+				for _, part := range parts {
+					kv := strings.Split(part, ":")
+					if len(kv) > 1 && kv[0] == "column" {
+						fieldToColumn[field.Name()] = kv[1]
+					}
+				}
+			}
+		}
+		fields = append(fields, field)
 	}
 
-	for i := 0; i < structType.NumFields(); i++ {
-		f := structType.Field(i)
-		fieldCnf := struct {
-			FieldToColumn    map[string]string
-			QueryBuilderName string
-			FieldName        string
-			FieldType        string
-			Titelize         func(string) string
-		}{
+	ret := []fieldConfig{}
+
+	for _, f := range fields {
+		ret = append(ret, fieldConfig{
 			FieldName:        f.Name(),
 			FieldType:        types.TypeString(f.Type(), func(p *types.Package) string { return p.Name() }),
 			FieldToColumn:    fieldToColumn,
 			QueryBuilderName: g.config.QueryBuilderName,
 			Titelize:         strings.Title,
-		}
-		templateWhereFunction.Execute(g.buf, fieldCnf)
-		templateOrderByFunction.Execute(g.buf, fieldCnf)
+		})
+	}
+	return ret
+}
+
+func (g *Generator) generateFieldSpecificTemplates() {
+	for _, f := range g.buildFieldConfig() {
+		templateWhereFunction.Execute(g.buf, f)
+		templateOrderByFunction.Execute(g.buf, f)
 	}
 }
 
