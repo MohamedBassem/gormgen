@@ -102,7 +102,7 @@ var (
 			}
 		`)
 	templateWhereFunction = parseTemplateOrPanic(`
-			func (qb *{{call .Titelize .QueryBuilderName}}) Where{{.FieldName}}(p gormgen.Predict, value {{.FieldType}}) *{{.QueryBuilderName}} {
+			func (qb *{{.QueryBuilderName}}) Where{{call .Titelize .FieldName}}(p gormgen.Predict, value {{.FieldType}}) *{{.QueryBuilderName}} {
 				 qb.where = append(qb.where, struct {
 					prefix string
 					value interface{}
@@ -114,7 +114,7 @@ var (
 			}
 		`)
 	templateOrderByFunction = parseTemplateOrPanic(`
-			func (qb *{{call .Titelize .QueryBuilderName}}) OrderBy{{.FieldName}}(asc bool) *{{.QueryBuilderName}} {
+			func (qb *{{.QueryBuilderName}}) OrderBy{{call .Titelize .FieldName}}(asc bool) *{{.QueryBuilderName}} {
 				order := "DESC"
 				if asc {
 					order = "ASC"
