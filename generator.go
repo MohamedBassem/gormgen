@@ -78,7 +78,7 @@ func (g *Generator) generateFieldSpecificTemplates() {
 			Titelize         func(string) string
 		}{
 			FieldName:        f.Name(),
-			FieldType:        f.Type().String(),
+			FieldType:        types.TypeString(f.Type(), func(p *types.Package) string { return p.Name() }),
 			FieldToColumn:    fieldToColumn,
 			QueryBuilderName: g.config.QueryBuilderName,
 			Titelize:         strings.Title,
