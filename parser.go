@@ -98,3 +98,12 @@ func (p *Parser) ParseDir(dir string) {
 func (p *Parser) GetTypeByName(name string) *ast.StructType {
 	return p.types[name]
 }
+
+func (p *Parser) GetIdentByName(name string) *ast.Ident {
+	for id := range p.defs {
+		if id.Name == name {
+			return id
+		}
+	}
+	return nil
+}
