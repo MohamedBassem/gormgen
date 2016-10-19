@@ -1,6 +1,8 @@
 GO_PKGS=$(foreach pkg, $(shell go list ./...), $(if $(findstring /vendor/, $(pkg)), , $(pkg)))
 
-build: generate
+build: generate build_no_generate
+
+build_no_generate:
 	go install $(GO_PKGS)
 	go build ./cmd/gormgen
 
