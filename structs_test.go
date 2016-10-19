@@ -327,3 +327,45 @@ func (qb *ComplexModelQueryBuilder) OrderByName(asc bool) *ComplexModelQueryBuil
 	qb.order = append(qb.order, "name "+order)
 	return qb
 }
+
+func (qb *ComplexModelQueryBuilder) WhereEmbeddedName(p Predict, value string) *ComplexModelQueryBuilder {
+	qb.where = append(qb.where, struct {
+		prefix string
+		value  interface{}
+	}{
+		fmt.Sprintf("%v %v ?", "embedded_name", p.String()),
+		value,
+	})
+	return qb
+}
+
+func (qb *ComplexModelQueryBuilder) OrderByEmbeddedName(asc bool) *ComplexModelQueryBuilder {
+	order := "DESC"
+	if asc {
+		order = "ASC"
+	}
+
+	qb.order = append(qb.order, "embedded_name "+order)
+	return qb
+}
+
+func (qb *ComplexModelQueryBuilder) WhereTest(p Predict, value struct{ NoIdea string }) *ComplexModelQueryBuilder {
+	qb.where = append(qb.where, struct {
+		prefix string
+		value  interface{}
+	}{
+		fmt.Sprintf("%v %v ?", "test", p.String()),
+		value,
+	})
+	return qb
+}
+
+func (qb *ComplexModelQueryBuilder) OrderByTest(asc bool) *ComplexModelQueryBuilder {
+	order := "DESC"
+	if asc {
+		order = "ASC"
+	}
+
+	qb.order = append(qb.order, "test "+order)
+	return qb
+}
