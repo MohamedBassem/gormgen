@@ -5,8 +5,12 @@ package gormgen
 //        ANY CHANGES DONE HERE WILL BE LOST             //
 ///////////////////////////////////////////////////////////
 
-import "github.com/jinzhu/gorm"
-import "fmt"
+import (
+	"fmt"
+	"time"
+
+	"github.com/jinzhu/gorm"
+)
 
 func (t *BasicModel) Save(db *gorm.DB) error {
 	return db.Save(t).Error
@@ -216,6 +220,90 @@ func (qb *ComplexModelQueryBuilder) Limit(limit int) *ComplexModelQueryBuilder {
 
 func (qb *ComplexModelQueryBuilder) Offset(offset int) *ComplexModelQueryBuilder {
 	qb.offset = offset
+	return qb
+}
+
+func (qb *ComplexModelQueryBuilder) WhereID(p Predict, value uint) *ComplexModelQueryBuilder {
+	qb.where = append(qb.where, struct {
+		prefix string
+		value  interface{}
+	}{
+		fmt.Sprintf("%v %v ?", "id", p.String()),
+		value,
+	})
+	return qb
+}
+
+func (qb *ComplexModelQueryBuilder) OrderByID(asc bool) *ComplexModelQueryBuilder {
+	order := "DESC"
+	if asc {
+		order = "ASC"
+	}
+
+	qb.order = append(qb.order, "id "+order)
+	return qb
+}
+
+func (qb *ComplexModelQueryBuilder) WhereCreatedAt(p Predict, value time.Time) *ComplexModelQueryBuilder {
+	qb.where = append(qb.where, struct {
+		prefix string
+		value  interface{}
+	}{
+		fmt.Sprintf("%v %v ?", "created_at", p.String()),
+		value,
+	})
+	return qb
+}
+
+func (qb *ComplexModelQueryBuilder) OrderByCreatedAt(asc bool) *ComplexModelQueryBuilder {
+	order := "DESC"
+	if asc {
+		order = "ASC"
+	}
+
+	qb.order = append(qb.order, "created_at "+order)
+	return qb
+}
+
+func (qb *ComplexModelQueryBuilder) WhereUpdatedAt(p Predict, value time.Time) *ComplexModelQueryBuilder {
+	qb.where = append(qb.where, struct {
+		prefix string
+		value  interface{}
+	}{
+		fmt.Sprintf("%v %v ?", "updated_at", p.String()),
+		value,
+	})
+	return qb
+}
+
+func (qb *ComplexModelQueryBuilder) OrderByUpdatedAt(asc bool) *ComplexModelQueryBuilder {
+	order := "DESC"
+	if asc {
+		order = "ASC"
+	}
+
+	qb.order = append(qb.order, "updated_at "+order)
+	return qb
+}
+
+func (qb *ComplexModelQueryBuilder) WhereDeletedAt(p Predict, value *time.Time) *ComplexModelQueryBuilder {
+	qb.where = append(qb.where, struct {
+		prefix string
+		value  interface{}
+	}{
+		fmt.Sprintf("%v %v ?", "deleted_at", p.String()),
+		value,
+	})
+	return qb
+}
+
+func (qb *ComplexModelQueryBuilder) OrderByDeletedAt(asc bool) *ComplexModelQueryBuilder {
+	order := "DESC"
+	if asc {
+		order = "ASC"
+	}
+
+	qb.order = append(qb.order, "deleted_at "+order)
 	return qb
 }
 

@@ -50,6 +50,9 @@ func main() {
 	if err := gen.Generate(); err != nil {
 		log.Fatalf("Error Generating file: %v", err.Error())
 	}
+	if err := gen.Imports(); err != nil {
+		log.Fatalf("Error adding imports to output file: %v", err.Error())
+	}
 	if err := gen.Format(); err != nil {
 		log.Fatalf("Error Formating output file: %v", err.Error())
 	}

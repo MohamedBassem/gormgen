@@ -3,8 +3,10 @@ package gormgen
 import (
 	"go/ast"
 	"go/build"
+	"go/importer"
 	"go/parser"
 	"go/token"
+	"go/types"
 	"log"
 )
 
@@ -15,6 +17,7 @@ type Parser struct {
 	files       []string
 	parsedFiles []*ast.File
 	fileSet     *token.FileSet
+	defs        map[*ast.Ident]types.Object
 }
 
 func NewParser() *Parser {
@@ -72,6 +75,19 @@ func (p *Parser) parseTypes(file *ast.File) {
 	})
 }
 
+// Copied from the stringer package. Check the README
+func (p *Parser) typeCheck() {
+	p.defs = make(map[*ast.Ident]types.Object)
+	config := types.Config{Importer: importer.Default(), FakeImportC: true}
+	info := &types.Info{
+		Defs: p.defs,
+	}
+	_, err := config.Check(p.dir, p.fileSet, p.parsedFiles, info)
+	if err != nil {
+		log.Fatalf("checking package: %s", err)
+	}
+}
+
 func (p *Parser) ParseDir(dir string) {
 	p.dir = dir
 	p.getFiles()
@@ -79,12 +95,29 @@ func (p *Parser) ParseDir(dir string) {
 	for _, f := range p.parsedFiles {
 		p.parseTypes(f)
 	}
+	p.typeCheck()
 }
 
-func (p *Parser) GetTypeByName(name string) *ast.StructType {
-	for id, v := range p.types {
+func (p *Parser) GetTypeByName(name string) *types.Struct {
+	ident := p.GetIdentByName(name)
+	if ident == nil {
+		return nil
+	}
+	def, ok := p.defs[ident]
+	if !ok {
+		return nil
+	}
+	structType, ok := def.Type().Underlying().(*types.Struct)
+	if !ok {
+		return nil
+	}
+	return structType
+}
+
+func (p *Parser) GetIdentByName(name string) *ast.Ident {
+	for id := range p.types {
 		if id.Name == name {
-			return v
+			return id
 		}
 	}
 	return nil
