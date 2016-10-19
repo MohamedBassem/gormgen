@@ -17,7 +17,7 @@ func TestBasicSuite(t *testing.T) {
 }
 
 type BasicModel struct {
-	ID   int `gorm:"primary_key"`
+	ID   uint `gorm:"primary_key"`
 	Name string
 	Age  int
 }
@@ -57,4 +57,103 @@ func (b *BasicTestSuite) TestSaveUpdate() {
 	db.Find(&fetchedModel, map[string]interface{}{"Name": model.Name})
 	b.Require().Equal(1, len(fetchedModel), "The database shouldn't create a new model but rather update the old one")
 	b.Require().Equal(model, &fetchedModel[0], "The fetched model should have been correctly updated")
+}
+
+func (b *BasicTestSuite) TestQueryCount() {
+	// Create 10 models
+	for i := 0; i < 10; i++ {
+		b.getDBConn().Create(randomBasicModel())
+	}
+
+	// Query the whole table for the number of entries
+	c, err := (&BasicModelQueryBuilder{}).Count(b.getDBConn())
+	b.Require().Nil(err, "The count function shouldn't return an error")
+	b.Require().Equal(10, c, "The count function should report 10 entries")
+}
+
+func (b *BasicTestSuite) TestQueryAll() {
+	models := []BasicModel{}
+	for i := 0; i < 10; i++ {
+		models = append(models, *randomBasicModel())
+		b.getDBConn().Create(&models[i])
+	}
+
+	// Query the whole table for the entries
+	fetched, err := (&BasicModelQueryBuilder{}).QueryAll(b.getDBConn())
+	b.Require().Nil(err, "The QueryAll function shouldn't return an error")
+	b.Require().Equal(models, fetched, "The query all function should return all 10 entries")
+}
+
+func (b *BasicTestSuite) TestQueryLimit() {
+	models := []BasicModel{}
+	for i := 0; i < 10; i++ {
+		models = append(models, *randomBasicModel())
+		b.getDBConn().Create(&models[i])
+	}
+
+	fetched, err := (&BasicModelQueryBuilder{}).Limit(1).QueryAll(b.getDBConn())
+	b.Require().Nil(err, "The query shouldn't return an error")
+	b.Require().Equal(1, len(fetched), "The query should return only one item")
+	b.Require().Equal(models[0], fetched[0], "The query one function should return only the first element")
+}
+
+func (b *BasicTestSuite) TestQueryOffset() {
+	models := []BasicModel{}
+	for i := 0; i < 10; i++ {
+		models = append(models, *randomBasicModel())
+		b.getDBConn().Create(&models[i])
+	}
+
+	// NOTE, I added LIMIT a limit because SQLite doesn't understand an offset without a limit and gorm
+	// doesn't support negative limits. https://github.com/jinzhu/gorm/issues/1045
+	fetched, err := (&BasicModelQueryBuilder{}).Limit(10).Offset(1).QueryAll(b.getDBConn())
+	b.Require().Nil(err, "The query shouldn't return an error")
+	b.Require().Equal(9, len(fetched), "The query should return all but the first item")
+	b.Require().Equal(models[1:], fetched, "The query one function should return only the first element")
+}
+
+func (b *BasicTestSuite) TestQueryOne() {
+	models := []*BasicModel{}
+	for i := 0; i < 10; i++ {
+		models = append(models, randomBasicModel())
+		b.getDBConn().Create(models[i])
+	}
+
+	// Query the whole table for the number of entries
+	fetched, err := (&BasicModelQueryBuilder{}).QueryOne(b.getDBConn())
+	b.Require().Nil(err, "The QueryOne function shouldn't return an error")
+	b.Require().Equal(models[0], fetched, "The query one function should return only the first element")
+}
+
+func (b *BasicTestSuite) TestBasicWhere() {
+	models := []BasicModel{
+		{
+			Name: "Test1",
+			Age:  10,
+		},
+		{
+			Name: "Test2",
+			Age:  20,
+		},
+		{
+			Name: "Test3",
+			Age:  30,
+		},
+		{
+			Name: "Test4",
+			Age:  50,
+		},
+	}
+	for i := 0; i < len(models); i++ {
+		b.getDBConn().Create(&models[i])
+	}
+
+	fetched, err := (&BasicModelQueryBuilder{}).WhereID(EqualPredict, 1).QueryAll(b.getDBConn())
+	b.Require().Nil(err, "The query function shouldn't return an error")
+	b.Require().Equal(models[0], fetched[0], "The query should return only the first element")
+
+	fetched, err = (&BasicModelQueryBuilder{}).WhereAge(GreaterThanOrEqualPredict, 30).QueryAll(b.getDBConn())
+	b.Require().Nil(err, "The query function shouldn't return an error")
+	b.Require().Equal(models[2:], fetched, "The query should return only the first element")
+
 }

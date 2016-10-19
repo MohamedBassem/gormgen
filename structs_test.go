@@ -1,6 +1,7 @@
 package gormgen
 
 import "github.com/jinzhu/gorm"
+import "fmt"
 
 func (t *BasicModel) Save(db *gorm.DB) error {
 	return db.Save(t).Error
@@ -23,7 +24,7 @@ type BasicModelQueryBuilder struct {
 func (qb *BasicModelQueryBuilder) buildQuery(db *gorm.DB) *gorm.DB {
 	ret := db
 	for _, where := range qb.where {
-		ret = ret.Where(where)
+		ret = ret.Where(where.prefix, where.value)
 	}
 	for _, order := range qb.order {
 		ret = ret.Order(order)
@@ -76,12 +77,12 @@ func (qb *BasicModelQueryBuilder) Offset(offset int) *BasicModelQueryBuilder {
 	return qb
 }
 
-func (qb *BasicModelQueryBuilder) WhereID(p Predict, value int) *BasicModelQueryBuilder {
+func (qb *BasicModelQueryBuilder) WhereID(p Predict, value uint) *BasicModelQueryBuilder {
 	qb.where = append(qb.where, struct {
 		prefix string
 		value  interface{}
 	}{
-		"id " + p.String(),
+		fmt.Sprintf("%v %v ?", "id", p.String()),
 		value,
 	})
 	return qb
@@ -102,7 +103,7 @@ func (qb *BasicModelQueryBuilder) WhereName(p Predict, value string) *BasicModel
 		prefix string
 		value  interface{}
 	}{
-		"name " + p.String(),
+		fmt.Sprintf("%v %v ?", "name", p.String()),
 		value,
 	})
 	return qb
@@ -123,7 +124,7 @@ func (qb *BasicModelQueryBuilder) WhereAge(p Predict, value int) *BasicModelQuer
 		prefix string
 		value  interface{}
 	}{
-		"age " + p.String(),
+		fmt.Sprintf("%v %v ?", "age", p.String()),
 		value,
 	})
 	return qb

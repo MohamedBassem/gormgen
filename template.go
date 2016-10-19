@@ -18,6 +18,7 @@ package {{.PkgName}}
 import "github.com/MohamedBassem/gormgen"
 {{end}}
 import "github.com/jinzhu/gorm"
+import "fmt"
 
 {{range .Structs}}
 
@@ -42,7 +43,7 @@ import "github.com/jinzhu/gorm"
 	func (qb *{{.QueryBuilderName}}) buildQuery(db *gorm.DB) *gorm.DB {
 		ret := db
 		for _, where := range qb.where {
-			ret = ret.Where(where)
+			ret = ret.Where(where.prefix, where.value)
 		}
 		for _, order := range qb.order {
 			ret = ret.Order(order)
@@ -102,7 +103,7 @@ import "github.com/jinzhu/gorm"
 				prefix string
 				value interface{}
 			}{
-				"{{.ColumnName}} " + p.String(),
+				fmt.Sprintf("%v %v ?", "{{.ColumnName}}", p.String()),
 				value,
 			})
 			return qb
