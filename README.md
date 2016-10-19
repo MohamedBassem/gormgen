@@ -84,9 +84,10 @@ func (qb *UserQueryBuilder) OrderByAge(asc bool) *UserQueryBuilder {/* … */}
 
 - [X] Inferring database column name from gorm convention or gorm struct tag.
 - [X] Ignoring fields with `gorm:"-"`.
-- [ ] Support for anonymous structs (IMPORTANT for gorm.Model).
+- [X] Support for anonymous structs (IMPORTANT for gorm.Model).
 - [ ] Support for type aliases.
 - [ ] Support for detecting and querying with primary key.
+- [ ] Support for the embedded struct tag.
 
 ## Contributing
 
