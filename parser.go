@@ -37,6 +37,7 @@ func (p *Parser) getFiles() {
 	p.pkgName = pkg.Name
 	files = append(files, pkg.GoFiles...)
 	files = append(files, pkg.CgoFiles...)
+	files = append(files, pkg.TestGoFiles...)
 	p.files = files
 }
 
