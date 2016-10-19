@@ -136,6 +136,6 @@ func (g *Generator) Format() error {
 	return nil
 }
 
-func (g *Generator) Flush() {
-	ioutil.WriteFile(g.outputFile, g.buf.Bytes(), 0644)
+func (g *Generator) Flush() error {
+	return ioutil.WriteFile(g.outputFile, g.buf.Bytes(), 0644)
 }
