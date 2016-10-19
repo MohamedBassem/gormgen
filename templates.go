@@ -20,8 +20,6 @@ func parseTemplateOrPanic(t string) *template.Template {
 var tpl = parseTemplateOrPanic(`
 package {{.PkgName}}
 
-{{$gormgenPrefix := "gormgen."}}
-{{if eq (.PkgName) "gormgen"}}{{$gormgenPrefix := ""}}{{end}}
 {{if ne (.PkgName) "gormgen"}}
 import "github.com/MohamedBassem/gormgen"
 {{end}}
@@ -48,6 +46,7 @@ import "github.com/jinzhu/gorm"
 	}
 
 	func (qb *{{.QueryBuilderName}}) buildQuery(db *gorm.DB) *gorm.DB {
+		ret := db
 		for _, where := range qb.where {
 			ret = ret.Where(where)
 		}
@@ -103,9 +102,8 @@ import "github.com/jinzhu/gorm"
 	}
 
 	{{$queryBuilderName := .QueryBuilderName}}
-	{{$helpers := .Helpers}}
 	{{range .Fields}}
-		func (qb *{{$queryBuilderName}}) Where{{call $helpers.Titelize .FieldName}}(p {{$gormgenPrefix}}Predict, value {{.FieldType}}) *{{$queryBuilderName}} {
+		func (qb *{{$queryBuilderName}}) Where{{call $.Helpers.Titelize .FieldName}}(p {{if ne ($.PkgName) "gormgen"}}gormgen.{{end}}Predict, value {{.FieldType}}) *{{$queryBuilderName}} {
 			 qb.where = append(qb.where, struct {
 				prefix string
 				value interface{}
@@ -116,7 +114,7 @@ import "github.com/jinzhu/gorm"
 			return qb
 		}
 
-		func (qb *{{$queryBuilderName}}) OrderBy{{call $helpers.Titelize .FieldName}}(asc bool) *{{$queryBuilderName}} {
+		func (qb *{{$queryBuilderName}}) OrderBy{{call $.Helpers.Titelize .FieldName}}(asc bool) *{{$queryBuilderName}} {
 			order := "DESC"
 			if asc {
 				order = "ASC"

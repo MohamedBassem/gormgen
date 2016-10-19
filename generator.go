@@ -26,11 +26,11 @@ type structConfig struct {
 	StructName       string
 	QueryBuilderName string
 	Fields           []fieldConfig
-	Helpers          structHelpers
 }
 
 type structsConfig struct {
 	PkgName string
+	Helpers structHelpers
 	Structs []structConfig
 }
 
@@ -51,10 +51,16 @@ func (g *Generator) Init(parser *Parser, structs []string) error {
 	if err := g.validateStructs(parser, structs); err != nil {
 		return err
 	}
-	g.config.PkgName = parser.pkgName
+	g.config = structsConfig{
+		PkgName: parser.pkgName,
+		Helpers: structHelpers{
+			Titelize: strings.Title,
+		},
+	}
 	for _, st := range structs {
 		g.config.Structs = append(g.config.Structs, *g.buildConfig(parser, st))
 	}
+
 	return nil
 }
 
@@ -71,9 +77,6 @@ func (g *Generator) buildConfig(parser *Parser, structName string) *structConfig
 	cnf := &structConfig{
 		StructName:       structName,
 		QueryBuilderName: fmt.Sprintf("%sQueryBuilder", structName),
-		Helpers: structHelpers{
-			Titelize: strings.Title,
-		},
 	}
 	cnf.Fields = g.buildFieldConfig(parser, structName)
 	return cnf
