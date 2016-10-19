@@ -122,7 +122,7 @@ func (g *Generator) buildFieldConfig(parser *Parser, structName string) []fieldC
 }
 
 func (g *Generator) Generate() error {
-	return tpl.Execute(g.buf, g.config)
+	return outputTemplate.Execute(g.buf, g.config)
 }
 
 func (g *Generator) Format() error {

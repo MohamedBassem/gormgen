@@ -1,23 +1,17 @@
 package gormgen
 
-import (
-	"fmt"
-	"html/template"
-)
+import "text/template"
 
-var templateId = 0
-
+// Make sure that the template compiles during package initialization
 func parseTemplateOrPanic(t string) *template.Template {
-	templateIdStr := fmt.Sprintf("template_%v", templateId)
-	templateId++
-	tpl, err := template.New(templateIdStr).Parse(t)
+	tpl, err := template.New("output_template").Parse(t)
 	if err != nil {
 		panic(err)
 	}
 	return tpl
 }
 
-var tpl = parseTemplateOrPanic(`
+var outputTemplate = parseTemplateOrPanic(`
 package {{.PkgName}}
 
 {{if ne (.PkgName) "gormgen"}}
