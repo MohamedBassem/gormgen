@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go/format"
 	"go/types"
+	"io/ioutil"
 	"strings"
 
 	"github.com/jinzhu/gorm"
@@ -133,5 +134,5 @@ func (g *Generator) Format() error {
 }
 
 func (g *Generator) Flush() {
-	fmt.Println(g.buf.String())
+	ioutil.WriteFile(g.outputFile, g.buf.Bytes(), 0644)
 }
