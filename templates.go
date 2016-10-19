@@ -19,7 +19,12 @@ func parseTemplateOrPanic(t string) *template.Template {
 
 var tpl = parseTemplateOrPanic(`
 package {{.PkgName}}
+
+{{$gormgenPrefix := "gormgen."}}
+{{if eq (.PkgName) "gormgen"}}{{$gormgenPrefix := ""}}{{end}}
+{{if ne (.PkgName) "gormgen"}}
 import "github.com/MohamedBassem/gormgen"
+{{end}}
 import "github.com/jinzhu/gorm"
 
 {{range .Structs}}
@@ -100,7 +105,7 @@ import "github.com/jinzhu/gorm"
 	{{$queryBuilderName := .QueryBuilderName}}
 	{{$helpers := .Helpers}}
 	{{range .Fields}}
-		func (qb *{{$queryBuilderName}}) Where{{call $helpers.Titelize .FieldName}}(p gormgen.Predict, value {{.FieldType}}) *{{$queryBuilderName}} {
+		func (qb *{{$queryBuilderName}}) Where{{call $helpers.Titelize .FieldName}}(p {{$gormgenPrefix}}Predict, value {{.FieldType}}) *{{$queryBuilderName}} {
 			 qb.where = append(qb.where, struct {
 				prefix string
 				value interface{}
