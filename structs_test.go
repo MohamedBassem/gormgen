@@ -103,7 +103,7 @@ func (qb *BasicModelQueryBuilder) WhereName(p Predict, value string) *BasicModel
 		prefix string
 		value  interface{}
 	}{
-		fmt.Sprintf("%v %v ?", "name", p.String()),
+		fmt.Sprintf("%v %v ?", "name2", p.String()),
 		value,
 	})
 	return qb
@@ -115,7 +115,7 @@ func (qb *BasicModelQueryBuilder) OrderByName(asc bool) *BasicModelQueryBuilder 
 		order = "ASC"
 	}
 
-	qb.order = append(qb.order, "name "+order)
+	qb.order = append(qb.order, "name2 "+order)
 	return qb
 }
 

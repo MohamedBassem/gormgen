@@ -17,8 +17,8 @@ func TestBasicSuite(t *testing.T) {
 }
 
 type BasicModel struct {
-	ID   uint `gorm:"primary_key"`
-	Name string
+	ID   uint   `gorm:"primary_key"`
+	Name string `gorm:"column:name2"`
 	Age  int
 }
 
@@ -54,7 +54,7 @@ func (b *BasicTestSuite) TestSaveUpdate() {
 	// Fetch the model by its name and assert that its the same
 	db := b.getDBConn()
 	fetchedModel := []BasicModel{}
-	db.Find(&fetchedModel, map[string]interface{}{"Name": model.Name})
+	db.Find(&fetchedModel, map[string]interface{}{"name2": model.Name})
 	b.Require().Equal(1, len(fetchedModel), "The database shouldn't create a new model but rather update the old one")
 	b.Require().Equal(model, &fetchedModel[0], "The fetched model should have been correctly updated")
 }
@@ -152,6 +152,11 @@ func (b *BasicTestSuite) TestQueryWhere() {
 	b.Require().Nil(err, "The query function shouldn't return an error")
 	b.Require().Equal(1, len(fetched), "The query function return a single element")
 	b.Require().Equal(models[0], fetched[0], "The query should return only the first element")
+
+	fetched, err = (&BasicModelQueryBuilder{}).WhereName(EqualPredict, "Test2").QueryAll(b.getDBConn())
+	b.Require().Nil(err, "The query function shouldn't return an error")
+	b.Require().Equal(1, len(fetched), "The query function return a single element")
+	b.Require().Equal(models[1], fetched[0], "The query should return only the first element")
 
 	fetched, err = (&BasicModelQueryBuilder{}).WhereAge(GreaterThanOrEqualPredict, 30).QueryAll(b.getDBConn())
 	b.Require().Nil(err, "The query function shouldn't return an error")
