@@ -51,7 +51,7 @@ func (qb *BasicModelQueryBuilder) First(db *gorm.DB) (*BasicModel, error) {
 }
 
 func (qb *BasicModelQueryBuilder) QueryOne(db *gorm.DB) (*BasicModel, error) {
-	qb.offset = 1
+	qb.limit = 1
 	ret, err := qb.QueryAll(db)
 	if len(ret) > 0 {
 		return &ret[0], err

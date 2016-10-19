@@ -70,7 +70,7 @@ import "github.com/jinzhu/gorm"
 	}
 
 	func (qb *{{.QueryBuilderName}}) QueryOne(db *gorm.DB) (*{{.StructName}}, error) {
-		qb.offset = 1
+		qb.limit = 1
 		ret, err := qb.QueryAll(db)
 		if len(ret) > 0 {
 			return &ret[0], err
