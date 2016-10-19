@@ -17,6 +17,7 @@ func TestBasicSuite(t *testing.T) {
 }
 
 type BasicModel struct {
+	ID   int `gorm:"primary_key"`
 	Name string
 	Age  int
 }

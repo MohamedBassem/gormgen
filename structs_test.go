@@ -76,6 +76,27 @@ func (qb *BasicModelQueryBuilder) Offset(offset int) *BasicModelQueryBuilder {
 	return qb
 }
 
+func (qb *BasicModelQueryBuilder) WhereID(p Predict, value int) *BasicModelQueryBuilder {
+	qb.where = append(qb.where, struct {
+		prefix string
+		value  interface{}
+	}{
+		"id " + p.String(),
+		value,
+	})
+	return qb
+}
+
+func (qb *BasicModelQueryBuilder) OrderByID(asc bool) *BasicModelQueryBuilder {
+	order := "DESC"
+	if asc {
+		order = "ASC"
+	}
+
+	qb.order = append(qb.order, "id "+order)
+	return qb
+}
+
 func (qb *BasicModelQueryBuilder) WhereName(p Predict, value string) *BasicModelQueryBuilder {
 	qb.where = append(qb.where, struct {
 		prefix string
