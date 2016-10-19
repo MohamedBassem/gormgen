@@ -56,7 +56,7 @@ func (m *MainTestSuite) getDBConn() *gorm.DB {
 		}
 		m.DB = db
 	}
-	return m.DB.Debug()
+	return m.DB
 }
 
 func TestMain(m *testing.M) {
