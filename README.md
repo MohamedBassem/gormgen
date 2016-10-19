@@ -1,5 +1,7 @@
 # gormgen
 
+[![Build Status](https://travis-ci.org/MohamedBassem/gormgen.svg?branch=master)](https://travis-ci.org/MohamedBassem/gormgen)
+
 gormgen is a code generation tool to generate code that's compatible with the [gorm ORM](https://github.com/jinzhu/gorm) but without having to deal with `interface{}`s or with database column names.
 
 ## Why to use gormgen
