@@ -86,7 +86,7 @@ func (qb *BasicModelQueryBuilder) Offset(offset int) *BasicModelQueryBuilder {
 	return qb
 }
 
-func (qb *BasicModelQueryBuilder) WhereID(p Predict, value uint) *BasicModelQueryBuilder {
+func (qb *BasicModelQueryBuilder) WhereID(p Predicate, value uint) *BasicModelQueryBuilder {
 	qb.where = append(qb.where, struct {
 		prefix string
 		value  interface{}
@@ -107,7 +107,7 @@ func (qb *BasicModelQueryBuilder) OrderByID(asc bool) *BasicModelQueryBuilder {
 	return qb
 }
 
-func (qb *BasicModelQueryBuilder) WhereName(p Predict, value string) *BasicModelQueryBuilder {
+func (qb *BasicModelQueryBuilder) WhereName(p Predicate, value string) *BasicModelQueryBuilder {
 	qb.where = append(qb.where, struct {
 		prefix string
 		value  interface{}
@@ -128,7 +128,7 @@ func (qb *BasicModelQueryBuilder) OrderByName(asc bool) *BasicModelQueryBuilder 
 	return qb
 }
 
-func (qb *BasicModelQueryBuilder) WhereAge(p Predict, value int) *BasicModelQueryBuilder {
+func (qb *BasicModelQueryBuilder) WhereAge(p Predicate, value int) *BasicModelQueryBuilder {
 	qb.where = append(qb.where, struct {
 		prefix string
 		value  interface{}
@@ -223,7 +223,7 @@ func (qb *ComplexModelQueryBuilder) Offset(offset int) *ComplexModelQueryBuilder
 	return qb
 }
 
-func (qb *ComplexModelQueryBuilder) WhereID(p Predict, value uint) *ComplexModelQueryBuilder {
+func (qb *ComplexModelQueryBuilder) WhereID(p Predicate, value uint) *ComplexModelQueryBuilder {
 	qb.where = append(qb.where, struct {
 		prefix string
 		value  interface{}
@@ -244,7 +244,7 @@ func (qb *ComplexModelQueryBuilder) OrderByID(asc bool) *ComplexModelQueryBuilde
 	return qb
 }
 
-func (qb *ComplexModelQueryBuilder) WhereCreatedAt(p Predict, value time.Time) *ComplexModelQueryBuilder {
+func (qb *ComplexModelQueryBuilder) WhereCreatedAt(p Predicate, value time.Time) *ComplexModelQueryBuilder {
 	qb.where = append(qb.where, struct {
 		prefix string
 		value  interface{}
@@ -265,7 +265,7 @@ func (qb *ComplexModelQueryBuilder) OrderByCreatedAt(asc bool) *ComplexModelQuer
 	return qb
 }
 
-func (qb *ComplexModelQueryBuilder) WhereUpdatedAt(p Predict, value time.Time) *ComplexModelQueryBuilder {
+func (qb *ComplexModelQueryBuilder) WhereUpdatedAt(p Predicate, value time.Time) *ComplexModelQueryBuilder {
 	qb.where = append(qb.where, struct {
 		prefix string
 		value  interface{}
@@ -286,7 +286,7 @@ func (qb *ComplexModelQueryBuilder) OrderByUpdatedAt(asc bool) *ComplexModelQuer
 	return qb
 }
 
-func (qb *ComplexModelQueryBuilder) WhereDeletedAt(p Predict, value *time.Time) *ComplexModelQueryBuilder {
+func (qb *ComplexModelQueryBuilder) WhereDeletedAt(p Predicate, value *time.Time) *ComplexModelQueryBuilder {
 	qb.where = append(qb.where, struct {
 		prefix string
 		value  interface{}
@@ -307,7 +307,7 @@ func (qb *ComplexModelQueryBuilder) OrderByDeletedAt(asc bool) *ComplexModelQuer
 	return qb
 }
 
-func (qb *ComplexModelQueryBuilder) WhereName(p Predict, value string) *ComplexModelQueryBuilder {
+func (qb *ComplexModelQueryBuilder) WhereName(p Predicate, value string) *ComplexModelQueryBuilder {
 	qb.where = append(qb.where, struct {
 		prefix string
 		value  interface{}
@@ -328,7 +328,7 @@ func (qb *ComplexModelQueryBuilder) OrderByName(asc bool) *ComplexModelQueryBuil
 	return qb
 }
 
-func (qb *ComplexModelQueryBuilder) WhereEmbeddedName(p Predict, value string) *ComplexModelQueryBuilder {
+func (qb *ComplexModelQueryBuilder) WhereEmbeddedName(p Predicate, value string) *ComplexModelQueryBuilder {
 	qb.where = append(qb.where, struct {
 		prefix string
 		value  interface{}
@@ -349,7 +349,7 @@ func (qb *ComplexModelQueryBuilder) OrderByEmbeddedName(asc bool) *ComplexModelQ
 	return qb
 }
 
-func (qb *ComplexModelQueryBuilder) WhereTest(p Predict, value struct{ NoIdea string }) *ComplexModelQueryBuilder {
+func (qb *ComplexModelQueryBuilder) WhereTest(p Predicate, value struct{ NoIdea string }) *ComplexModelQueryBuilder {
 	qb.where = append(qb.where, struct {
 		prefix string
 		value  interface{}

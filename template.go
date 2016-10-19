@@ -103,7 +103,7 @@ import "fmt"
 
 	{{$queryBuilderName := .QueryBuilderName}}
 	{{range .Fields}}
-		func (qb *{{$queryBuilderName}}) Where{{call $.Helpers.Titelize .FieldName}}(p {{if ne ($.PkgName) "gormgen"}}gormgen.{{end}}Predict, value {{.FieldType}}) *{{$queryBuilderName}} {
+		func (qb *{{$queryBuilderName}}) Where{{call $.Helpers.Titelize .FieldName}}(p {{if ne ($.PkgName) "gormgen"}}gormgen.{{end}}Predicate, value {{.FieldType}}) *{{$queryBuilderName}} {
 			 qb.where = append(qb.where, struct {
 				prefix string
 				value interface{}

@@ -161,30 +161,30 @@ func (b *BasicTestSuite) TestQueryWhere() {
 		b.getDBConn().Create(&models[i])
 	}
 
-	fetched, err := (&BasicModelQueryBuilder{}).WhereID(EqualPredict, 1).QueryAll(b.getDBConn())
+	fetched, err := (&BasicModelQueryBuilder{}).WhereID(EqualPredicate, 1).QueryAll(b.getDBConn())
 	b.Require().Nil(err, "The query function shouldn't return an error")
 	b.Require().Equal(1, len(fetched), "The query function return a single element")
 	b.Require().Equal(models[0], fetched[0], "The query should return only the first element")
 
-	fetched, err = (&BasicModelQueryBuilder{}).WhereName(EqualPredict, "Test2").QueryAll(b.getDBConn())
+	fetched, err = (&BasicModelQueryBuilder{}).WhereName(EqualPredicate, "Test2").QueryAll(b.getDBConn())
 	b.Require().Nil(err, "The query function shouldn't return an error")
 	b.Require().Equal(1, len(fetched), "The query function return a single element")
 	b.Require().Equal(models[1], fetched[0], "The query should return only the first element")
 
-	fetched, err = (&BasicModelQueryBuilder{}).WhereAge(GreaterThanOrEqualPredict, 30).QueryAll(b.getDBConn())
+	fetched, err = (&BasicModelQueryBuilder{}).WhereAge(GreaterThanOrEqualPredicate, 30).QueryAll(b.getDBConn())
 	b.Require().Nil(err, "The query function shouldn't return an error")
 	b.Require().Equal(2, len(fetched), "The query function return two element")
 	b.Require().Equal(models[2:], fetched, "The query should return only elements with age creater than 30")
 
 	fetched, err = (&BasicModelQueryBuilder{}).
-		WhereName(SmallerThanPredict, "Test4").
-		WhereAge(GreaterThanOrEqualPredict, 30).
+		WhereName(SmallerThanPredicate, "Test4").
+		WhereAge(GreaterThanOrEqualPredicate, 30).
 		QueryAll(b.getDBConn())
 	b.Require().Nil(err, "The query function shouldn't return an error")
 	b.Require().Equal(1, len(fetched), "The query function return one element")
 	b.Require().Equal(models[2], fetched[0], "The query should return only the third element")
 
-	fetched, err = (&BasicModelQueryBuilder{}).WhereAge(EqualPredict, -100).QueryAll(b.getDBConn())
+	fetched, err = (&BasicModelQueryBuilder{}).WhereAge(EqualPredicate, -100).QueryAll(b.getDBConn())
 	b.Require().Nil(err, "The query function shouldn't return an error")
 	b.Require().Equal(0, len(fetched), "The query function return two element")
 	b.Require().Equal([]BasicModel{}, fetched, "The query should return only elements with age creater than 30")
