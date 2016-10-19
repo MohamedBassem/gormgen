@@ -1,4 +1,4 @@
-package main
+package gormgen
 
 type Predict interface {
 	String() string

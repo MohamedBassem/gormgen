@@ -1,4 +1,4 @@
-package main
+package gormgen
 
 import (
 	"bytes"
@@ -46,7 +46,7 @@ func NewGenerator(outputFile string) *Generator {
 	}
 }
 
-func (g *Generator) init(parser *Parser, structs []string) error {
+func (g *Generator) Init(parser *Parser, structs []string) error {
 	if err := g.validateStructs(parser, structs); err != nil {
 		return err
 	}

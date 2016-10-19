@@ -1,4 +1,4 @@
-package main
+package gormgen
 
 import (
 	"go/ast"
