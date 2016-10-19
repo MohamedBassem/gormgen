@@ -12,9 +12,10 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-//go:generate gormgen -structs BasicModel -output structs_test.go
+//go:generate gormgen -structs BasicModel,ComplexModel -output structs_test.go
 var modelRegistry = []interface{}{
 	BasicModel{},
+	ComplexModel{},
 }
 
 type MainTestSuite struct {

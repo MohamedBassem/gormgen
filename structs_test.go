@@ -139,3 +139,98 @@ func (qb *BasicModelQueryBuilder) OrderByAge(asc bool) *BasicModelQueryBuilder {
 	qb.order = append(qb.order, "age "+order)
 	return qb
 }
+
+func (t *ComplexModel) Save(db *gorm.DB) error {
+	return db.Save(t).Error
+}
+
+func (t *ComplexModel) Delete(db *gorm.DB) error {
+	return db.Delete(t).Error
+}
+
+type ComplexModelQueryBuilder struct {
+	order []string
+	where []struct {
+		prefix string
+		value  interface{}
+	}
+	limit  int
+	offset int
+}
+
+func (qb *ComplexModelQueryBuilder) buildQuery(db *gorm.DB) *gorm.DB {
+	ret := db
+	for _, where := range qb.where {
+		ret = ret.Where(where.prefix, where.value)
+	}
+	for _, order := range qb.order {
+		ret = ret.Order(order)
+	}
+	ret = ret.Limit(qb.limit).Offset(qb.offset)
+	return ret
+}
+
+func (qb *ComplexModelQueryBuilder) Count(db *gorm.DB) (int, error) {
+	var c int
+	res := qb.buildQuery(db).Model(&ComplexModel{}).Count(&c)
+	if res.RecordNotFound() {
+		c = 0
+	}
+	return c, res.Error
+}
+
+func (qb *ComplexModelQueryBuilder) First(db *gorm.DB) (*ComplexModel, error) {
+	ret := &ComplexModel{}
+	res := qb.buildQuery(db).First(ret)
+	if res.RecordNotFound() {
+		ret = nil
+	}
+	return ret, res.Error
+}
+
+func (qb *ComplexModelQueryBuilder) QueryOne(db *gorm.DB) (*ComplexModel, error) {
+	qb.limit = 1
+	ret, err := qb.QueryAll(db)
+	if len(ret) > 0 {
+		return &ret[0], err
+	} else {
+		return nil, err
+	}
+}
+
+func (qb *ComplexModelQueryBuilder) QueryAll(db *gorm.DB) ([]ComplexModel, error) {
+	ret := []ComplexModel{}
+	err := qb.buildQuery(db).Find(&ret).Error
+	return ret, err
+}
+
+func (qb *ComplexModelQueryBuilder) Limit(limit int) *ComplexModelQueryBuilder {
+	qb.limit = limit
+	return qb
+}
+
+func (qb *ComplexModelQueryBuilder) Offset(offset int) *ComplexModelQueryBuilder {
+	qb.offset = offset
+	return qb
+}
+
+func (qb *ComplexModelQueryBuilder) WhereName(p Predict, value string) *ComplexModelQueryBuilder {
+	qb.where = append(qb.where, struct {
+		prefix string
+		value  interface{}
+	}{
+		fmt.Sprintf("%v %v ?", "name", p.String()),
+		value,
+	})
+	return qb
+}
+
+func (qb *ComplexModelQueryBuilder) OrderByName(asc bool) *ComplexModelQueryBuilder {
+	order := "DESC"
+	if asc {
+		order = "ASC"
+	}
+
+	qb.order = append(qb.order, "name "+order)
+	return qb
+}
