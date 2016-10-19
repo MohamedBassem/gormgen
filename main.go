@@ -31,17 +31,8 @@ func parseFlags() {
 	}
 }
 
-func checkStructSuffix() {
-	for _, st := range cnf.structs {
-		if !strings.HasSuffix(st, "Schema") {
-			log.Fatalf("Struct %s must have 'Schema' as a suffix", st)
-		}
-	}
-}
-
 func main() {
 	parseFlags()
-	checkStructSuffix()
 	wd, err := os.Getwd()
 	if err != nil {
 		log.Fatalln(err)
@@ -49,16 +40,16 @@ func main() {
 	parser := NewParser()
 	parser.ParseDir(wd)
 
-	generator := NewGenerator()
-	generator.init()
-	for _, s := range cnf.structs {
-		ast := parser.GetTypeByName(s)
-		if ast == nil {
-			log.Printf("Struct %s is not found\n", s)
-			continue
-		}
-		generator.Generate(parser, s)
+	gen := NewGenerator(cnf.output)
+	if err := gen.init(parser, cnf.structs); err != nil {
+		log.Fatalf(err.Error())
 	}
-	generator.Flush()
+	if err := gen.Generate(); err != nil {
+		log.Fatalf(err.Error())
+	}
+	if err := gen.Format(); err != nil {
+		log.Fatalf(err.Error())
+	}
+	gen.Flush()
 
 }

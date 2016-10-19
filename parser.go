@@ -14,6 +14,7 @@ import (
 
 type Parser struct {
 	dir         string
+	pkgName     string
 	types       map[*ast.Ident]*ast.StructType
 	files       []string
 	parsedFiles []*ast.File
@@ -33,6 +34,7 @@ func (p *Parser) getFiles() {
 		log.Fatalf("cannot process directory %s: %s", p.dir, err)
 	}
 	var files []string
+	p.pkgName = pkg.Name
 	files = append(files, pkg.GoFiles...)
 	files = append(files, pkg.CgoFiles...)
 	p.files = files

@@ -3,72 +3,83 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"go/printer"
+	"go/format"
 	"go/types"
 	"strings"
 
 	"github.com/jinzhu/gorm"
 )
 
+type structHelpers struct {
+	Titelize func(string) string
+}
+
 type fieldConfig struct {
-	FieldToColumn    map[string]string
-	QueryBuilderName string
-	FieldName        string
-	FieldType        string
-	Titelize         func(string) string
+	FieldName  string
+	ColumnName string
+	FieldType  string
+	Titelize   func(string) string
 }
 
 type structConfig struct {
 	StructName       string
-	StructText       string
 	QueryBuilderName string
+	Fields           []fieldConfig
+	Helpers          structHelpers
+}
+
+type structsConfig struct {
+	PkgName string
+	Structs []structConfig
 }
 
 type Generator struct {
-	buf    *bytes.Buffer
-	name   string
-	parser *Parser
-	config structConfig
+	buf        *bytes.Buffer
+	outputFile string
+	config     structsConfig
 }
 
-func NewGenerator() *Generator {
+func NewGenerator(outputFile string) *Generator {
 	return &Generator{
-		buf: new(bytes.Buffer),
+		buf:        new(bytes.Buffer),
+		outputFile: outputFile,
 	}
 }
 
-func (g *Generator) init() {
-	g.generateImports()
+func (g *Generator) init(parser *Parser, structs []string) error {
+	if err := g.validateStructs(parser, structs); err != nil {
+		return err
+	}
+	g.config.PkgName = parser.pkgName
+	for _, st := range structs {
+		g.config.Structs = append(g.config.Structs, *g.buildConfig(parser, st))
+	}
+	return nil
 }
 
-func (g *Generator) buildConfig() {
-	structName := strings.TrimSuffix(g.name, "Schema")
-	structTextBuf := new(bytes.Buffer)
-	printer.Fprint(structTextBuf, g.parser.fileSet, g.parser.GetTypeByName(g.name))
-	g.config = structConfig{
+func (g *Generator) validateStructs(parser *Parser, structs []string) error {
+	for _, st := range structs {
+		if parser.GetTypeByName(st) == nil {
+			return fmt.Errorf("Type %v is not found", st)
+		}
+	}
+	return nil
+}
+
+func (g *Generator) buildConfig(parser *Parser, structName string) *structConfig {
+	cnf := &structConfig{
 		StructName:       structName,
-		StructText:       structTextBuf.String(),
 		QueryBuilderName: fmt.Sprintf("%sQueryBuilder", structName),
+		Helpers: structHelpers{
+			Titelize: strings.Title,
+		},
 	}
+	cnf.Fields = g.buildFieldConfig(parser, structName)
+	return cnf
 }
 
-func (g *Generator) generateImports() {
-	importStatments.Execute(g.buf, nil)
-}
-
-func (g *Generator) generateMainStruct() {
-	templateMainStruct.Execute(g.buf, g.config)
-}
-
-func (g *Generator) generateQueryBuilder() {
-	templateQueryBuilder.Execute(g.buf, g.config)
-}
-
-func (g *Generator) buildFieldConfig() []fieldConfig {
-	obj := g.parser.defs[g.parser.GetIdentByName(g.name)]
-	if obj == nil {
-		panic("SHOULDN'T HAPPEN")
-	}
+func (g *Generator) buildFieldConfig(parser *Parser, structName string) []fieldConfig {
+	obj := parser.defs[parser.GetIdentByName(structName)]
 	fieldToColumn := make(map[string]string)
 	fields := []*types.Var{}
 	structType := obj.Type().Underlying().(*types.Struct)
@@ -77,7 +88,7 @@ func (g *Generator) buildFieldConfig() []fieldConfig {
 		if !field.Exported() {
 			continue
 		}
-		tag := g.parser.GetFieldTag(g.name, field.Name())
+		tag := parser.GetFieldTag(structName, field.Name())
 		fieldToColumn[field.Name()] = gorm.ToDBName(field.Name())
 		if tag != nil {
 			if gormt, ok := tag.Lookup("gorm"); ok {
@@ -100,30 +111,25 @@ func (g *Generator) buildFieldConfig() []fieldConfig {
 
 	for _, f := range fields {
 		ret = append(ret, fieldConfig{
-			FieldName:        f.Name(),
-			FieldType:        types.TypeString(f.Type(), func(p *types.Package) string { return p.Name() }),
-			FieldToColumn:    fieldToColumn,
-			QueryBuilderName: g.config.QueryBuilderName,
-			Titelize:         strings.Title,
+			FieldName:  f.Name(),
+			FieldType:  types.TypeString(f.Type(), func(p *types.Package) string { return p.Name() }),
+			ColumnName: fieldToColumn[f.Name()],
 		})
 	}
 	return ret
 }
 
-func (g *Generator) generateFieldSpecificTemplates() {
-	for _, f := range g.buildFieldConfig() {
-		templateWhereFunction.Execute(g.buf, f)
-		templateOrderByFunction.Execute(g.buf, f)
-	}
+func (g *Generator) Generate() error {
+	return tpl.Execute(g.buf, g.config)
 }
 
-func (g *Generator) Generate(parser *Parser, name string) {
-	g.name = name
-	g.parser = parser
-	g.buildConfig()
-	g.generateMainStruct()
-	g.generateQueryBuilder()
-	g.generateFieldSpecificTemplates()
+func (g *Generator) Format() error {
+	formatedOutput, err := format.Source(g.buf.Bytes())
+	if err != nil {
+		return err
+	}
+	g.buf = bytes.NewBuffer(formatedOutput)
+	return nil
 }
 
 func (g *Generator) Flush() {
