@@ -13,3 +13,11 @@ func generateRandomString(l int) string {
 	}
 	return buf.String()
 }
+
+func reverseBasicModelSlice(s []BasicModel) []BasicModel {
+	ret := make([]BasicModel, len(s))
+	for i := 0; i < len(s); i++ {
+		ret[i] = s[len(s)-1-i]
+	}
+	return ret
+}

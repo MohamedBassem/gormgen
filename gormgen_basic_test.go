@@ -125,7 +125,7 @@ func (b *BasicTestSuite) TestQueryOne() {
 	b.Require().Equal(models[0], fetched, "The query one function should return only the first element")
 }
 
-func (b *BasicTestSuite) TestBasicWhere() {
+func (b *BasicTestSuite) TestQueryWhere() {
 	models := []BasicModel{
 		{
 			Name: "Test1",
@@ -150,10 +150,63 @@ func (b *BasicTestSuite) TestBasicWhere() {
 
 	fetched, err := (&BasicModelQueryBuilder{}).WhereID(EqualPredict, 1).QueryAll(b.getDBConn())
 	b.Require().Nil(err, "The query function shouldn't return an error")
+	b.Require().Equal(1, len(fetched), "The query function return a single element")
 	b.Require().Equal(models[0], fetched[0], "The query should return only the first element")
 
 	fetched, err = (&BasicModelQueryBuilder{}).WhereAge(GreaterThanOrEqualPredict, 30).QueryAll(b.getDBConn())
 	b.Require().Nil(err, "The query function shouldn't return an error")
-	b.Require().Equal(models[2:], fetched, "The query should return only the first element")
+	b.Require().Equal(2, len(fetched), "The query function return two element")
+	b.Require().Equal(models[2:], fetched, "The query should return only elements with age creater than 30")
 
+	fetched, err = (&BasicModelQueryBuilder{}).
+		WhereName(SmallerThanPredict, "Test4").
+		WhereAge(GreaterThanOrEqualPredict, 30).
+		QueryAll(b.getDBConn())
+	b.Require().Nil(err, "The query function shouldn't return an error")
+	b.Require().Equal(1, len(fetched), "The query function return one element")
+	b.Require().Equal(models[2], fetched[0], "The query should return only the third element")
+
+	fetched, err = (&BasicModelQueryBuilder{}).WhereAge(EqualPredict, -100).QueryAll(b.getDBConn())
+	b.Require().Nil(err, "The query function shouldn't return an error")
+	b.Require().Equal(0, len(fetched), "The query function return two element")
+	b.Require().Equal([]BasicModel{}, fetched, "The query should return only elements with age creater than 30")
+}
+
+func (b *BasicTestSuite) TestQueryOrder() {
+	models := []BasicModel{
+		{
+			Name: "Test1",
+			Age:  10,
+		},
+		{
+			Name: "Test2",
+			Age:  10,
+		},
+		{
+			Name: "Test3",
+			Age:  30,
+		},
+		{
+			Name: "Test4",
+			Age:  50,
+		},
+	}
+	for i := 0; i < len(models); i++ {
+		b.getDBConn().Create(&models[i])
+	}
+
+	fetched, err := (&BasicModelQueryBuilder{}).OrderByID(true).QueryAll(b.getDBConn())
+	b.Require().Nil(err, "The query function shouldn't return an error")
+	b.Require().Equal(len(models), len(fetched), "The query function return all the items")
+	b.Require().Equal(models, fetched, "The query should return the items sorted by ID")
+
+	fetched, err = (&BasicModelQueryBuilder{}).OrderByID(false).QueryAll(b.getDBConn())
+	b.Require().Nil(err, "The query function shouldn't return an error")
+	b.Require().Equal(len(models), len(fetched), "The query function return all the items")
+	b.Require().Equal(reverseBasicModelSlice(models), fetched, "The query should return the items sorted by ID")
+
+	fetched, err = (&BasicModelQueryBuilder{}).OrderByAge(false).OrderByName(true).QueryAll(b.getDBConn())
+	b.Require().Nil(err, "The query function shouldn't return an error")
+	b.Require().Equal(len(models), len(fetched), "The query function return all the items")
+	b.Require().Equal([]BasicModel{models[3], models[2], models[0], models[1]}, fetched, "The query should return the items sorted by ID")
 }
