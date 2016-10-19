@@ -41,6 +41,19 @@ func (b *BasicTestSuite) TestSaveCreate() {
 	b.Require().Equal(model, fetchedModel, "The fetched model should have been correctly saved")
 }
 
+func (b *BasicTestSuite) TestDelete() {
+	// Create a model
+	model := randomBasicModel()
+	b.getDBConn().Create(model)
+
+	err := model.Delete(b.getDBConn())
+	b.Require().Nil(err, "Deleting shouldn't return an error")
+
+	fetchedModels := []BasicModel{}
+	b.getDBConn().Find(&fetchedModels, BasicModel{})
+	b.Require().Equal(0, len(fetchedModels), "The model should have been deleted")
+}
+
 func (b *BasicTestSuite) TestSaveUpdate() {
 	// Create and save a model
 	model := randomBasicModel()
