@@ -3,13 +3,9 @@ package gormgen
 import (
 	"go/ast"
 	"go/build"
-	"go/importer"
 	"go/parser"
 	"go/token"
-	"go/types"
 	"log"
-	"reflect"
-	"strings"
 )
 
 type Parser struct {
@@ -19,7 +15,6 @@ type Parser struct {
 	files       []string
 	parsedFiles []*ast.File
 	fileSet     *token.FileSet
-	defs        map[*ast.Ident]types.Object
 }
 
 func NewParser() *Parser {
@@ -54,19 +49,6 @@ func (p *Parser) parseFiles() {
 	p.parsedFiles, p.fileSet = parsedFiles, fs
 }
 
-func (p *Parser) typeCheck() {
-	// Copied from the stringer library
-	p.defs = make(map[*ast.Ident]types.Object)
-	config := types.Config{Importer: importer.Default(), FakeImportC: true}
-	info := &types.Info{
-		Defs: p.defs,
-	}
-	_, err := config.Check(p.dir, p.fileSet, p.parsedFiles, info)
-	if err != nil {
-		log.Fatalf("checking package: %s", err)
-	}
-}
-
 func (p *Parser) parseTypes(file *ast.File) {
 	ast.Inspect(file, func(node ast.Node) bool {
 		decl, ok := node.(*ast.GenDecl)
@@ -94,7 +76,6 @@ func (p *Parser) ParseDir(dir string) {
 	p.dir = dir
 	p.getFiles()
 	p.parseFiles()
-	p.typeCheck()
 	for _, f := range p.parsedFiles {
 		p.parseTypes(f)
 	}
@@ -104,31 +85,6 @@ func (p *Parser) GetTypeByName(name string) *ast.StructType {
 	for id, v := range p.types {
 		if id.Name == name {
 			return v
-		}
-	}
-	return nil
-}
-
-func (p *Parser) GetIdentByName(name string) *ast.Ident {
-	for id := range p.types {
-		if id.Name == name {
-			return id
-		}
-	}
-	return nil
-}
-
-func (p *Parser) GetFieldTag(structName, fieldName string) *reflect.StructTag {
-	t := p.GetTypeByName(structName)
-	if t == nil {
-		return nil
-	}
-	for _, f := range t.Fields.List {
-		for _, id := range f.Names {
-			if id.Name == fieldName && f.Tag != nil {
-				stag := reflect.StructTag(strings.Trim(f.Tag.Value, "`"))
-				return &stag
-			}
 		}
 	}
 	return nil

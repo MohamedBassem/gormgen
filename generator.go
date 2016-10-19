@@ -3,9 +3,11 @@ package gormgen
 import (
 	"bytes"
 	"fmt"
+	"go/ast"
 	"go/format"
-	"go/types"
+	"go/printer"
 	"io/ioutil"
+	"reflect"
 	"strings"
 
 	"github.com/jinzhu/gorm"
@@ -19,7 +21,6 @@ type fieldConfig struct {
 	FieldName  string
 	ColumnName string
 	FieldType  string
-	Titelize   func(string) string
 }
 
 type structConfig struct {
@@ -83,44 +84,41 @@ func (g *Generator) buildConfig(parser *Parser, structName string) *structConfig
 }
 
 func (g *Generator) buildFieldConfig(parser *Parser, structName string) []fieldConfig {
-	obj := parser.defs[parser.GetIdentByName(structName)]
-	fieldToColumn := make(map[string]string)
-	fields := []*types.Var{}
-	structType := obj.Type().Underlying().(*types.Struct)
-	for i := 0; i < structType.NumFields(); i++ {
-		field := structType.Field(i)
-		if !field.Exported() {
-			continue
-		}
-		tag := parser.GetFieldTag(structName, field.Name())
-		fieldToColumn[field.Name()] = gorm.ToDBName(field.Name())
-		if tag != nil {
-			if gormt, ok := tag.Lookup("gorm"); ok {
-				if gormt == "-" {
-					continue
-				}
-				parts := strings.Split(gormt, ";")
-				for _, part := range parts {
-					kv := strings.Split(part, ":")
-					if len(kv) > 1 && kv[0] == "column" {
-						fieldToColumn[field.Name()] = kv[1]
+	fields := []fieldConfig{}
+	structType := parser.GetTypeByName(structName)
+	for i := 0; i < structType.Fields.NumFields(); i++ {
+		field := structType.Fields.List[i]
+		for _, name := range field.Names {
+			if !ast.IsExported(name.Name) {
+				continue
+			}
+			columnName := gorm.ToDBName(name.Name)
+			if field.Tag != nil {
+				tag := reflect.StructTag(strings.Trim(field.Tag.Value, "`"))
+				if gormt, ok := tag.Lookup("gorm"); ok {
+					if gormt == "-" {
+						continue
+					}
+					parts := strings.Split(gormt, ";")
+					for _, part := range parts {
+						kv := strings.Split(part, ":")
+						if len(kv) > 1 && kv[0] == "column" {
+							columnName = kv[1]
+						}
 					}
 				}
 			}
+			// Get field type
+			tmpBuf := &bytes.Buffer{}
+			printer.Fprint(tmpBuf, parser.fileSet, field.Type)
+			fields = append(fields, fieldConfig{
+				FieldName:  name.Name,
+				ColumnName: columnName,
+				FieldType:  tmpBuf.String(),
+			})
 		}
-		fields = append(fields, field)
 	}
-
-	ret := []fieldConfig{}
-
-	for _, f := range fields {
-		ret = append(ret, fieldConfig{
-			FieldName:  f.Name(),
-			FieldType:  types.TypeString(f.Type(), func(p *types.Package) string { return p.Name() }),
-			ColumnName: fieldToColumn[f.Name()],
-		})
-	}
-	return ret
+	return fields
 }
 
 func (g *Generator) Generate() error {
