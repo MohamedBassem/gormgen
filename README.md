@@ -75,7 +75,7 @@ func (qb *UserQueryBuilder) OrderByAge(asc bool) *UserQueryBuilder {/* … */}
 
 ## How to use it
 
-- `go get -u github.com/MohamedBassem/gormgen`
+- `go get -u github.com/MohamedBassem/gormgen/...`
 - Add the `//go:generate` comment mentioned above anywhere in your code.
 - Add `go generate` to your build steps.
 - **The generated code will depend on gorm and gormgen, so make sure to vendor both of them.**
