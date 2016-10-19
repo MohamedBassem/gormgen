@@ -40,13 +40,6 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	// Remove file if it's already there to avoid parsing it
-	if _, err := os.Stat(cnf.output); err == nil {
-		if err := os.Remove(cnf.output); err != nil {
-			log.Fatalf("Couldn't remove file %v: %v", cnf.output, err.Error())
-		}
-	}
-
 	parser := gormgen.NewParser()
 	parser.ParseDir(wd)
 
