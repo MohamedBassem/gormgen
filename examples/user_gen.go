@@ -66,9 +66,8 @@ func (qb *UserQueryBuilder) QueryOne(db *gorm.DB) (*User, error) {
 	ret, err := qb.QueryAll(db)
 	if len(ret) > 0 {
 		return &ret[0], err
-	} else {
-		return nil, err
 	}
+	return nil, err
 }
 
 func (qb *UserQueryBuilder) QueryAll(db *gorm.DB) ([]User, error) {
@@ -92,7 +91,7 @@ func (qb *UserQueryBuilder) WhereID(p gormgen.Predicate, value uint) *UserQueryB
 		prefix string
 		value  interface{}
 	}{
-		fmt.Sprintf("%v %v ?", "id", p.String()),
+		fmt.Sprintf("%v %v ?", "id", p),
 		value,
 	})
 	return qb
@@ -113,7 +112,7 @@ func (qb *UserQueryBuilder) WhereCreatedAt(p gormgen.Predicate, value time.Time)
 		prefix string
 		value  interface{}
 	}{
-		fmt.Sprintf("%v %v ?", "created_at", p.String()),
+		fmt.Sprintf("%v %v ?", "created_at", p),
 		value,
 	})
 	return qb
@@ -134,7 +133,7 @@ func (qb *UserQueryBuilder) WhereUpdatedAt(p gormgen.Predicate, value time.Time)
 		prefix string
 		value  interface{}
 	}{
-		fmt.Sprintf("%v %v ?", "updated_at", p.String()),
+		fmt.Sprintf("%v %v ?", "updated_at", p),
 		value,
 	})
 	return qb
@@ -155,7 +154,7 @@ func (qb *UserQueryBuilder) WhereDeletedAt(p gormgen.Predicate, value *time.Time
 		prefix string
 		value  interface{}
 	}{
-		fmt.Sprintf("%v %v ?", "deleted_at", p.String()),
+		fmt.Sprintf("%v %v ?", "deleted_at", p),
 		value,
 	})
 	return qb
@@ -176,7 +175,7 @@ func (qb *UserQueryBuilder) WhereName(p gormgen.Predicate, value string) *UserQu
 		prefix string
 		value  interface{}
 	}{
-		fmt.Sprintf("%v %v ?", "name", p.String()),
+		fmt.Sprintf("%v %v ?", "name", p),
 		value,
 	})
 	return qb
@@ -197,7 +196,7 @@ func (qb *UserQueryBuilder) WhereAge(p gormgen.Predicate, value int) *UserQueryB
 		prefix string
 		value  interface{}
 	}{
-		fmt.Sprintf("%v %v ?", "age", p.String()),
+		fmt.Sprintf("%v %v ?", "age", p),
 		value,
 	})
 	return qb
@@ -218,7 +217,7 @@ func (qb *UserQueryBuilder) WhereEmail(p gormgen.Predicate, value string) *UserQ
 		prefix string
 		value  interface{}
 	}{
-		fmt.Sprintf("%v %v ?", "email", p.String()),
+		fmt.Sprintf("%v %v ?", "email", p),
 		value,
 	})
 	return qb

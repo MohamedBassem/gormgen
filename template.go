@@ -107,7 +107,7 @@ import "fmt"
 				prefix string
 				value interface{}
 			}{
-				fmt.Sprintf("%v %v ?", "{{.ColumnName}}", p.String()),
+				fmt.Sprintf("%v %v ?", "{{.ColumnName}}", p),
 				value,
 			})
 			return qb
