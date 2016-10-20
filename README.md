@@ -39,7 +39,7 @@ err := user.Save(db)
 
 - No more ugly `interface{}`s when doing in the `Where` function. Using gormgen, the passed values will be type checked.
 - No more ugly strings for column names for `Where` and `Order` functions. By this, you won't need to convert the field name to the column name yourself, gormgen will do it for you. Also, you won't forget to change a column name when you change the field name because your code won't compile until you fix it everywhere.
-- A more intuitive way to return the results instead of passing them as a param.
+- Query results are returned in a more intuitive way instead of passing them as a param. Also the errors are also returned the "Go" way instead of explicitly accessing them.
 - It doesn't alter your struct, so it's still compatible with gorm and you can still use the gorm way whenever you want (or for missing features in gormgen).
 
 ## How it works
