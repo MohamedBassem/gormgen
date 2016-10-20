@@ -80,9 +80,8 @@ import "fmt"
 		ret, err := qb.QueryAll(db)
 		if len(ret) > 0 {
 			return &ret[0], err
-		}else{
-			return nil, err
 		}
+		return nil, err
 	}
 
 	func (qb *{{.QueryBuilderName}}) QueryAll(db *gorm.DB) ([]{{.StructName}}, error) {

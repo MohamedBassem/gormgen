@@ -65,9 +65,8 @@ func (qb *BasicModelQueryBuilder) QueryOne(db *gorm.DB) (*BasicModel, error) {
 	ret, err := qb.QueryAll(db)
 	if len(ret) > 0 {
 		return &ret[0], err
-	} else {
-		return nil, err
 	}
+	return nil, err
 }
 
 func (qb *BasicModelQueryBuilder) QueryAll(db *gorm.DB) ([]BasicModel, error) {
@@ -202,9 +201,8 @@ func (qb *ComplexModelQueryBuilder) QueryOne(db *gorm.DB) (*ComplexModel, error)
 	ret, err := qb.QueryAll(db)
 	if len(ret) > 0 {
 		return &ret[0], err
-	} else {
-		return nil, err
 	}
+	return nil, err
 }
 
 func (qb *ComplexModelQueryBuilder) QueryAll(db *gorm.DB) ([]ComplexModel, error) {
