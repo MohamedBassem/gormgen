@@ -90,7 +90,7 @@ func (qb *BasicModelQueryBuilder) WhereID(p Predicate, value uint) *BasicModelQu
 		prefix string
 		value  interface{}
 	}{
-		fmt.Sprintf("%v %v ?", "id", p.String()),
+		fmt.Sprintf("%v %v ?", "id", p),
 		value,
 	})
 	return qb
@@ -111,7 +111,7 @@ func (qb *BasicModelQueryBuilder) WhereName(p Predicate, value string) *BasicMod
 		prefix string
 		value  interface{}
 	}{
-		fmt.Sprintf("%v %v ?", "name2", p.String()),
+		fmt.Sprintf("%v %v ?", "name2", p),
 		value,
 	})
 	return qb
@@ -132,7 +132,7 @@ func (qb *BasicModelQueryBuilder) WhereAge(p Predicate, value int) *BasicModelQu
 		prefix string
 		value  interface{}
 	}{
-		fmt.Sprintf("%v %v ?", "age", p.String()),
+		fmt.Sprintf("%v %v ?", "age", p),
 		value,
 	})
 	return qb
@@ -226,7 +226,7 @@ func (qb *ComplexModelQueryBuilder) WhereID(p Predicate, value uint) *ComplexMod
 		prefix string
 		value  interface{}
 	}{
-		fmt.Sprintf("%v %v ?", "id", p.String()),
+		fmt.Sprintf("%v %v ?", "id", p),
 		value,
 	})
 	return qb
@@ -247,7 +247,7 @@ func (qb *ComplexModelQueryBuilder) WhereCreatedAt(p Predicate, value time.Time)
 		prefix string
 		value  interface{}
 	}{
-		fmt.Sprintf("%v %v ?", "created_at", p.String()),
+		fmt.Sprintf("%v %v ?", "created_at", p),
 		value,
 	})
 	return qb
@@ -268,7 +268,7 @@ func (qb *ComplexModelQueryBuilder) WhereUpdatedAt(p Predicate, value time.Time)
 		prefix string
 		value  interface{}
 	}{
-		fmt.Sprintf("%v %v ?", "updated_at", p.String()),
+		fmt.Sprintf("%v %v ?", "updated_at", p),
 		value,
 	})
 	return qb
@@ -289,7 +289,7 @@ func (qb *ComplexModelQueryBuilder) WhereDeletedAt(p Predicate, value *time.Time
 		prefix string
 		value  interface{}
 	}{
-		fmt.Sprintf("%v %v ?", "deleted_at", p.String()),
+		fmt.Sprintf("%v %v ?", "deleted_at", p),
 		value,
 	})
 	return qb
@@ -310,7 +310,7 @@ func (qb *ComplexModelQueryBuilder) WhereName(p Predicate, value string) *Comple
 		prefix string
 		value  interface{}
 	}{
-		fmt.Sprintf("%v %v ?", "name", p.String()),
+		fmt.Sprintf("%v %v ?", "name", p),
 		value,
 	})
 	return qb
@@ -331,7 +331,7 @@ func (qb *ComplexModelQueryBuilder) WhereEmbeddedName(p Predicate, value string)
 		prefix string
 		value  interface{}
 	}{
-		fmt.Sprintf("%v %v ?", "embedded_name", p.String()),
+		fmt.Sprintf("%v %v ?", "embedded_name", p),
 		value,
 	})
 	return qb
@@ -352,7 +352,7 @@ func (qb *ComplexModelQueryBuilder) WhereTest(p Predicate, value struct{ NoIdea 
 		prefix string
 		value  interface{}
 	}{
-		fmt.Sprintf("%v %v ?", "test", p.String()),
+		fmt.Sprintf("%v %v ?", "test", p),
 		value,
 	})
 	return qb

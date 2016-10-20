@@ -4,11 +4,11 @@ package gormgen
 type Predicate string
 
 var (
-	EqualPredicate              = "="
-	NotEqualPredicate           = "<>"
-	GreaterThanPredicate        = ">"
-	GreaterThanOrEqualPredicate = ">="
-	SmallerThanPredicate        = "<"
-	SmallerThanOrEqualPredicate = "<="
-	LikePredicate               = "LIKE"
+	EqualPredicate              = Predicate("=")
+	NotEqualPredicate           = Predicate("<>")
+	GreaterThanPredicate        = Predicate(">")
+	GreaterThanOrEqualPredicate = Predicate(">=")
+	SmallerThanPredicate        = Predicate("<")
+	SmallerThanOrEqualPredicate = Predicate("<=")
+	LikePredicate               = Predicate("LIKE")
 )
