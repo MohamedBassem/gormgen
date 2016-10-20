@@ -2,7 +2,9 @@
 
 [![Build Status](https://travis-ci.org/MohamedBassem/gormgen.svg?branch=master)](https://travis-ci.org/MohamedBassem/gormgen)
 
-gormgen is a code generation tool to generate code that's compatible with the [gorm ORM](https://github.com/jinzhu/gorm) but without having to deal with `interface{}`s or with database column names.
+gormgen is a code generation tool to generate a better API to query and update [gorm](https://github.com/jinzhu/gorm) structs without having to deal with `interface{}`s or with database column names.
+
+**Note** : gormgen is still is still in early development phase. It may contain bugs and the API is not yet stable. Your suggestions for improving gormgen are welcome through issues/PRs.
 
 ## Why to use gormgen
 
@@ -72,6 +74,8 @@ func (qb *UserQueryBuilder) OrderByName(asc bool) *UserQueryBuilder {/* … */}
 func (qb *UserQueryBuilder) WhereAge(p gormgen.Predicate, value int) *UserQueryBuilder {/* … */}
 func (qb *UserQueryBuilder) OrderByAge(asc bool) *UserQueryBuilder {/* … */}
 ```
+
+For the actual generated code, check the examples folder.
 
 ## How to use it
 
