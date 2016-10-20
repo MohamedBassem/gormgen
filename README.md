@@ -16,7 +16,7 @@ err := db.Where("age > ?", 20).Order("age ASC").Limit(10).Find(&users).Error
 
 // gormgen way
 users, err := (&UserQueryBuilder{}).
-  WhereAge(gormgen.GreaterThanPredict, 20).
+  WhereAge(gormgen.GreaterThanPredicate, 20).
   OrderByAge(true).
   Limit(10).
   QueryAll(db)
@@ -65,11 +65,11 @@ func (qb *UserQueryBuilder) QueryOne(db *gorm.DB) (*User, error) {/* … */} // 
 func (qb *UserQueryBuilder) QueryAll(db *gorm.DB) ([]User, error) {/* … */}
 func (qb *UserQueryBuilder) Limit(limit int) *UserQueryBuilder {/* … */}
 func (qb *UserQueryBuilder) Offset(offset int) *UserQueryBuilder {/* … */}
-func (qb *UserQueryBuilder) WhereID(p gormgen.Predict, value uint) *UserQueryBuilder {/* … */}
+func (qb *UserQueryBuilder) WhereID(p gormgen.Predicate, value uint) *UserQueryBuilder {/* … */}
 func (qb *UserQueryBuilder) OrderByID(asc bool) *UserQueryBuilder {/* … */}
-func (qb *UserQueryBuilder) WhereName(p gormgen.Predict, value string) *UserQueryBuilder {/* … */}
+func (qb *UserQueryBuilder) WhereName(p gormgen.Predicate, value string) *UserQueryBuilder {/* … */}
 func (qb *UserQueryBuilder) OrderByName(asc bool) *UserQueryBuilder {/* … */}
-func (qb *UserQueryBuilder) WhereAge(p gormgen.Predict, value int) *UserQueryBuilder {/* … */}
+func (qb *UserQueryBuilder) WhereAge(p gormgen.Predicate, value int) *UserQueryBuilder {/* … */}
 func (qb *UserQueryBuilder) OrderByAge(asc bool) *UserQueryBuilder {/* … */}
 ```
 
