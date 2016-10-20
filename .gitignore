@@ -27,3 +27,4 @@ _testmain.go
 *.out
 
 gormgen
+.DS_Store
