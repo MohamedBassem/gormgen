@@ -31,16 +31,16 @@ user := &User{
 }
 
 // The gorm way
-db.Create(user)
+err := db.Create(user).Error
 
 // The gormgen way
-user.Save(db)
+err := user.Save(db)
 ```
 
 - No more ugly `interface{}`s when doing in the `Where` function. Using gormgen, the passed values will be type checked.
 - No more ugly strings for column names for `Where` and `Order` functions. By this, you won't need to convert the field name to the column name yourself, gormgen will do it for you. Also, you won't forget to change a column name when you change the field name because your code won't compile until you fix it everywhere.
 - A more intuitive way to return the results instead of passing them as a param.
-- The generated code is compatible with gorm. So you can use other gorm functions that are not yet implemented in gormgen normally.
+- It doesn't alter your struct, so it's still compatible with gorm and you can still use the gorm way whenever you want (or for missing features in gormgen).
 
 ## How it works
 
@@ -55,7 +55,7 @@ type User struct {
 }
 ```
 
-gormgen will generate for you :
+Run `go generate` and gormgen will generate for you :
 
 ```go
 func (t *User) Save(db *gorm.DB) error {/* … */}
