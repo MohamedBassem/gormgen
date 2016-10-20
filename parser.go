@@ -10,6 +10,7 @@ import (
 	"log"
 )
 
+// The Parser is used to parse a directory and expose information about the structs defined in the files of this directory.
 type Parser struct {
 	dir         string
 	pkgName     string
@@ -20,6 +21,7 @@ type Parser struct {
 	defs        map[*ast.Ident]types.Object
 }
 
+// NewParser create a new parser instance.
 func NewParser() *Parser {
 	return &Parser{
 		types: make(map[*ast.Ident]*ast.StructType),
@@ -64,7 +66,7 @@ func (p *Parser) parseTypes(file *ast.File) {
 				continue
 			}
 
-			// We only care about struct declaration
+			// We only care about struct declaration (for now)
 			var structType *ast.StructType
 			if structType, ok = typeSpec.Type.(*ast.StructType); !ok {
 				continue
@@ -88,6 +90,7 @@ func (p *Parser) typeCheck() {
 	}
 }
 
+// ParseDir should be called before any type querying for the parser. It takes the directory to be parsed and extracts all the structs defined in this directory.
 func (p *Parser) ParseDir(dir string) {
 	p.dir = dir
 	p.getFiles()
@@ -98,8 +101,10 @@ func (p *Parser) ParseDir(dir string) {
 	p.typeCheck()
 }
 
+// GetTypeByName takes the name of the struct and returns a pointer to types.Struct which contains all the information
+// about this struct. It returns nil if the struct is not found.
 func (p *Parser) GetTypeByName(name string) *types.Struct {
-	ident := p.GetIdentByName(name)
+	ident := p.getIdentByName(name)
 	if ident == nil {
 		return nil
 	}
@@ -114,7 +119,7 @@ func (p *Parser) GetTypeByName(name string) *types.Struct {
 	return structType
 }
 
-func (p *Parser) GetIdentByName(name string) *ast.Ident {
+func (p *Parser) getIdentByName(name string) *ast.Ident {
 	for id := range p.types {
 		if id.Name == name {
 			return id

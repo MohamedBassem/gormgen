@@ -37,12 +37,14 @@ type structsConfig struct {
 	Structs []structConfig
 }
 
+// The Generator is the one responsible for generating the code, adding the imports, formating, and writing it to the file.
 type Generator struct {
 	buf        *bytes.Buffer
 	outputFile string
 	config     structsConfig
 }
 
+// NewGenerator function creates an instance of the generator given the name of the output file as an argument.
 func NewGenerator(outputFile string) *Generator {
 	return &Generator{
 		buf:        new(bytes.Buffer),
@@ -50,6 +52,8 @@ func NewGenerator(outputFile string) *Generator {
 	}
 }
 
+// Init function should be called before any other function is called. It takes a parser that has already parsed the directory
+// that contains the types we want to generate code for. It also takes the name of the structs that we want to generate code for.
 func (g *Generator) Init(parser *Parser, structs []string) error {
 	if err := g.validateStructs(parser, structs); err != nil {
 		return err
@@ -131,10 +135,12 @@ func (g *Generator) buildFieldConfig(parser *Parser, structType *types.Struct) [
 	return fields
 }
 
+// Generate executes the template and store it in an internal buffer.
 func (g *Generator) Generate() error {
 	return outputTemplate.Execute(g.buf, g.config)
 }
 
+// Format function formates the output of the generation.
 func (g *Generator) Format() error {
 	formatedOutput, err := format.Source(g.buf.Bytes())
 	if err != nil {
@@ -144,6 +150,7 @@ func (g *Generator) Format() error {
 	return nil
 }
 
+// Imports function adds the missing imports in the generated code.
 func (g *Generator) Imports() error {
 	wd, err := os.Getwd()
 	formatedOutput, err := imports.Process(wd, g.buf.Bytes(), nil)
@@ -154,6 +161,7 @@ func (g *Generator) Imports() error {
 	return nil
 }
 
+// Flush function writes the output to the output file.
 func (g *Generator) Flush() error {
 	return ioutil.WriteFile(g.outputFile, g.buf.Bytes(), 0644)
 }
