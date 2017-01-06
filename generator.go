@@ -122,6 +122,10 @@ func (g *Generator) buildFieldConfig(parser *Parser, structType *types.Struct) [
 			fields = append(fields, g.buildFieldConfig(parser, field.Type().Underlying().(*types.Struct))...)
 			continue
 		}
+		// A hack to ignore non-stdlib named types for now
+		if strings.Contains(field.Type().String(), "/") {
+			continue
+		}
 		columnName := gorm.ToDBName(field.Name())
 		if cname, ok := tag["column"]; ok {
 			columnName = cname

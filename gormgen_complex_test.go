@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/MohamedBassem/gormgen/internal/tmp"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/suite"
 )
@@ -26,6 +27,8 @@ type EmbeddedStruct2 struct {
 	MustNotBeThere string
 }
 
+type RelationStruct struct{}
+
 type ComplexModel struct {
 	gorm.Model
 	Name        string
@@ -36,6 +39,8 @@ type ComplexModel struct {
 	Test            struct {
 		NoIdea string
 	}
+	Relation             RelationStruct           // Should be ignored for now
+	AnotherPackageStruct tmp.AnotherPackageStruct // Should be ignored for now
 }
 
 func (c *ComplexTestSuite) TestNormalField() {
