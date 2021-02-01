@@ -10,8 +10,12 @@ import (
 	"time"
 
 	"github.com/MohamedBassem/gormgen"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
+
+func (t *User) Create(db *gorm.DB) error {
+	return db.Create(t).Error
+}
 
 func (t *User) Save(db *gorm.DB) error {
 	return db.Save(t).Error
@@ -43,10 +47,10 @@ func (qb *UserQueryBuilder) buildQuery(db *gorm.DB) *gorm.DB {
 	return ret
 }
 
-func (qb *UserQueryBuilder) Count(db *gorm.DB) (int, error) {
-	var c int
+func (qb *UserQueryBuilder) Count(db *gorm.DB) (int64, error) {
+	var c int64
 	res := qb.buildQuery(db).Model(&User{}).Count(&c)
-	if res.RecordNotFound() {
+	if res.Error == gorm.ErrRecordNotFound {
 		c = 0
 	}
 	return c, res.Error
@@ -55,7 +59,7 @@ func (qb *UserQueryBuilder) Count(db *gorm.DB) (int, error) {
 func (qb *UserQueryBuilder) First(db *gorm.DB) (*User, error) {
 	ret := &User{}
 	res := qb.buildQuery(db).First(ret)
-	if res.RecordNotFound() {
+	if res.Error == gorm.ErrRecordNotFound {
 		ret = nil
 	}
 	return ret, res.Error
@@ -149,7 +153,7 @@ func (qb *UserQueryBuilder) OrderByUpdatedAt(asc bool) *UserQueryBuilder {
 	return qb
 }
 
-func (qb *UserQueryBuilder) WhereDeletedAt(p gormgen.Predicate, value *time.Time) *UserQueryBuilder {
+func (qb *UserQueryBuilder) WhereDeletedAt(p gormgen.Predicate, value time.Time) *UserQueryBuilder {
 	qb.where = append(qb.where, struct {
 		prefix string
 		value  interface{}

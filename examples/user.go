@@ -1,6 +1,6 @@
 package example
 
-import "github.com/jinzhu/gorm"
+import "gorm.io/gorm"
 
 //go:generate gormgen -structs User -output user_gen.go
 type User struct {

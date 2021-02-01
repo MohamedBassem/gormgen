@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/MohamedBassem/gormgen/internal/tmp"
-	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/suite"
+	"gorm.io/gorm"
 )
 
 type ComplexTestSuite struct {
@@ -29,6 +29,12 @@ type EmbeddedStruct2 struct {
 
 type RelationStruct struct{}
 
+type M2MStruct struct {
+	gorm.Model
+	Name         string
+	ComplexModel []*ComplexModel `gorm:"many2many:m2m_rel;"`
+}
+
 type ComplexModel struct {
 	gorm.Model
 	Name        string
@@ -38,9 +44,10 @@ type ComplexModel struct {
 	EmbeddedStruct2 `gorm:"-"`
 	Test            struct {
 		NoIdea string
-	}
-	Relation             RelationStruct           // Should be ignored for now
-	AnotherPackageStruct tmp.AnotherPackageStruct // Should be ignored for now
+	} `gorm:"embedded"`
+	Relation             RelationStruct           `gorm:"-"` // Should be ignored for now
+	AnotherPackageStruct tmp.AnotherPackageStruct `gorm:"-"` // Should be ignored for now
+	M2MStruct            []*M2MStruct             `gorm:"many2many:m2m_rel;"`
 }
 
 func (c *ComplexTestSuite) TestNormalField() {

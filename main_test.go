@@ -8,14 +8,16 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/suite"
+	"gorm.io/driver/sqlite"
+
+	"gorm.io/gorm"
 )
 
 //go:generate gormgen -structs BasicModel,ComplexModel -output structs_test.go
 var modelRegistry = []interface{}{
-	BasicModel{},
-	ComplexModel{},
+	&BasicModel{},
+	&ComplexModel{},
 }
 
 type MainTestSuite struct {
@@ -27,7 +29,10 @@ type MainTestSuite struct {
 func (m *MainTestSuite) migrateModels() {
 	db := m.getDBConn()
 	for _, m := range modelRegistry {
-		db.AutoMigrate(m)
+		err := db.AutoMigrate(m)
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 
@@ -41,7 +46,6 @@ func (m *MainTestSuite) SetupTest() {
 }
 
 func (m *MainTestSuite) TearDownTest() {
-	m.DB.Close()
 	m.DB = nil
 	err := os.Remove(m.testDBFileName)
 	if err != nil {
@@ -51,7 +55,7 @@ func (m *MainTestSuite) TearDownTest() {
 
 func (m *MainTestSuite) getDBConn() *gorm.DB {
 	if m.DB == nil {
-		db, err := gorm.Open("sqlite3", m.testDBFileName)
+		db, err := gorm.Open(sqlite.Open(m.testDBFileName), &gorm.Config{})
 		if err != nil {
 			panic(err)
 		}

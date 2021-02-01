@@ -10,16 +10,18 @@ import (
 )
 
 type config struct {
-	output  string
-	structs []string
+	output   string
+	structs  []string
+	template string
 }
 
 var cnf config
 
 func parseFlags() {
-	var output, structs string
+	var output, structs, template string
 	flag.StringVar(&structs, "structs", "", "[Required] The name of schema structs to generate structs for, comma seperated")
 	flag.StringVar(&output, "output", "", "[Required] The name of the output file")
+	flag.StringVar(&template, "template", "", "[Optional] Specify the go-template file; default template content (see: https://github.com/MohamedBassem/gormgen/blob/master/template.go)")
 	flag.Parse()
 
 	if output == "" || structs == "" {
@@ -28,8 +30,9 @@ func parseFlags() {
 	}
 
 	cnf = config{
-		output:  output,
-		structs: strings.Split(structs, ","),
+		output:   output,
+		structs:  strings.Split(structs, ","),
+		template: template,
 	}
 }
 
@@ -43,7 +46,7 @@ func main() {
 	parser := gormgen.NewParser()
 	parser.ParseDir(wd)
 
-	gen := gormgen.NewGenerator(cnf.output)
+	gen := gormgen.NewGenerator(cnf.output, cnf.template)
 	if err := gen.Init(parser, cnf.structs); err != nil {
 		log.Fatalf("Error Initializing Generator: %v", err.Error())
 	}

@@ -1,10 +1,30 @@
 package gormgen
 
-import "text/template"
+import (
+	"io/ioutil"
+	"os"
+	"text/template"
+)
 
 // Make sure that the template compiles during package initialization
 func parseTemplateOrPanic(t string) *template.Template {
 	tpl, err := template.New("output_template").Parse(t)
+	if err != nil {
+		panic(err)
+	}
+	return tpl
+}
+
+func parseSpecifyTemplateOrPainc(tfile string) *template.Template {
+	fd, err := os.Open(tfile)
+	if err != nil {
+		panic(err)
+	}
+	tplBytes, err := ioutil.ReadAll(fd)
+	if err != nil {
+		panic(err)
+	}
+	tpl, err := template.New("output_template").Parse(string(tplBytes))
 	if err != nil {
 		panic(err)
 	}
@@ -22,10 +42,14 @@ package {{.PkgName}}
 {{if ne (.PkgName) "gormgen"}}
 import "github.com/MohamedBassem/gormgen"
 {{end}}
-import "github.com/jinzhu/gorm"
+import "gorm.io/gorm"
 import "fmt"
 
 {{range .Structs}}
+
+	func (t *{{.StructName}}) Create(db *gorm.DB) error {
+		return db.Create(t).Error
+	}
 
 	func (t *{{.StructName}}) Save(db *gorm.DB) error {
 		return db.Save(t).Error
@@ -57,10 +81,10 @@ import "fmt"
 		return ret
 	}
 
-	func (qb *{{.QueryBuilderName}}) Count(db *gorm.DB) (int, error) {
-		var c int
+	func (qb *{{.QueryBuilderName}}) Count(db *gorm.DB) (int64, error) {
+		var c int64
 		res := qb.buildQuery(db).Model(&{{.StructName}}{}).Count(&c)
-		if res.RecordNotFound() {
+		if res.Error == gorm.ErrRecordNotFound {
 			c = 0
 		}
 		return c, res.Error
@@ -69,7 +93,7 @@ import "fmt"
 	func (qb *{{.QueryBuilderName}}) First(db *gorm.DB) (*{{.StructName}}, error) {
 		ret := &{{.StructName}}{}
 		res := qb.buildQuery(db).First(ret)
-		if res.RecordNotFound() {
+		if res.Error == gorm.ErrRecordNotFound {
 			ret = nil
 		}
 		return ret, res.Error

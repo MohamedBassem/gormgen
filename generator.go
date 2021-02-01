@@ -11,8 +11,7 @@ import (
 	"strings"
 
 	"golang.org/x/tools/imports"
-
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm/schema"
 )
 
 type structHelpers struct {
@@ -41,14 +40,16 @@ type structsConfig struct {
 type Generator struct {
 	buf        *bytes.Buffer
 	outputFile string
+	template   string
 	config     structsConfig
 }
 
 // NewGenerator function creates an instance of the generator given the name of the output file as an argument.
-func NewGenerator(outputFile string) *Generator {
+func NewGenerator(outputFile, template string) *Generator {
 	return &Generator{
 		buf:        new(bytes.Buffer),
 		outputFile: outputFile,
+		template:   template,
 	}
 }
 
@@ -86,7 +87,7 @@ func (g *Generator) buildConfig(parser *Parser, structName string) *structConfig
 		QueryBuilderName: fmt.Sprintf("%sQueryBuilder", structName),
 	}
 	structType := parser.GetTypeByName(structName)
-	cnf.Fields = g.buildFieldConfig(parser, structType)
+	cnf.Fields = g.buildFieldConfig(parser, structType, structName)
 	return cnf
 }
 
@@ -107,8 +108,11 @@ func (g *Generator) parseGormStructTag(tagLine string) map[string]string {
 	return ret
 }
 
-func (g *Generator) buildFieldConfig(parser *Parser, structType *types.Struct) []fieldConfig {
+func (g *Generator) buildFieldConfig(parser *Parser, structType *types.Struct, structName string) []fieldConfig {
 	fields := []fieldConfig{}
+	// only support default namingstrategy
+	namer := schema.NamingStrategy{}
+	tableName := namer.TableName(structName)
 	for i := 0; i < structType.NumFields(); i++ {
 		field := structType.Field(i)
 		if !field.Exported() {
@@ -119,21 +123,26 @@ func (g *Generator) buildFieldConfig(parser *Parser, structType *types.Struct) [
 			continue
 		}
 		if field.Anonymous() {
-			fields = append(fields, g.buildFieldConfig(parser, field.Type().Underlying().(*types.Struct))...)
+			fields = append(fields, g.buildFieldConfig(parser, field.Type().Underlying().(*types.Struct), tableName)...)
 			continue
 		}
 		// A hack to ignore non-stdlib named types for now
-		if strings.Contains(field.Type().String(), "/") {
+		if strings.Contains(field.Type().String(), "/") && field.Type().String() != "gorm.io/gorm.DeletedAt" {
 			continue
 		}
-		columnName := gorm.ToDBName(field.Name())
+
+		columnName := namer.ColumnName(tableName, field.Name())
 		if cname, ok := tag["column"]; ok {
 			columnName = cname
+		}
+		ftype := field.Type().String()
+		if field.Type().String() == "gorm.io/gorm.DeletedAt" {
+			ftype = "time.Time"
 		}
 		fields = append(fields, fieldConfig{
 			FieldName:  field.Name(),
 			ColumnName: columnName,
-			FieldType:  field.Type().String(),
+			FieldType:  ftype,
 		})
 	}
 	return fields
@@ -141,6 +150,10 @@ func (g *Generator) buildFieldConfig(parser *Parser, structType *types.Struct) [
 
 // Generate executes the template and store it in an internal buffer.
 func (g *Generator) Generate() error {
+	if len(g.template) > 0 {
+		tpl := parseSpecifyTemplateOrPainc(g.template)
+		return tpl.Execute(g.buf, g.config)
+	}
 	return outputTemplate.Execute(g.buf, g.config)
 }
 

@@ -4,8 +4,8 @@ import (
 	"math/rand"
 	"testing"
 
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/stretchr/testify/suite"
+	"gorm.io/gorm"
 )
 
 type BasicTestSuite struct {
@@ -30,15 +30,15 @@ func randomBasicModel() *BasicModel {
 }
 
 func (b *BasicTestSuite) TestSaveCreate() {
-	model := randomBasicModel()
-	err := model.Save(b.getDBConn())
+	basicModelInstance := randomBasicModel()
+	err := basicModelInstance.Create(b.getDBConn())
 	b.Require().Nil(err, "Saving shouldn't return an error")
 
 	db := b.getDBConn()
 	fetchedModel := &BasicModel{}
-	notFound := db.Find(fetchedModel, randomBasicModel).RecordNotFound()
-	b.Require().False(notFound, "The model should have been created")
-	b.Require().Equal(model, fetchedModel, "The fetched model should have been correctly saved")
+	notFound := db.First(fetchedModel, *basicModelInstance).Error
+	b.Require().False(notFound == gorm.ErrRecordNotFound, "The model should have been created")
+	b.Require().Equal(basicModelInstance.Name, fetchedModel.Name, "The fetched model should have been correctly saved")
 }
 
 func (b *BasicTestSuite) TestDelete() {
@@ -81,7 +81,7 @@ func (b *BasicTestSuite) TestQueryCount() {
 	// Query the whole table for the number of entries
 	c, err := (&BasicModelQueryBuilder{}).Count(b.getDBConn())
 	b.Require().Nil(err, "The count function shouldn't return an error")
-	b.Require().Equal(10, c, "The count function should report 10 entries")
+	b.Require().Equal(int64(10), c, "The count function should report 10 entries")
 }
 
 func (b *BasicTestSuite) TestQueryAll() {

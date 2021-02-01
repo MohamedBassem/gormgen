@@ -9,8 +9,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
+
+func (t *BasicModel) Create(db *gorm.DB) error {
+	return db.Create(t).Error
+}
 
 func (t *BasicModel) Save(db *gorm.DB) error {
 	return db.Save(t).Error
@@ -42,10 +46,10 @@ func (qb *BasicModelQueryBuilder) buildQuery(db *gorm.DB) *gorm.DB {
 	return ret
 }
 
-func (qb *BasicModelQueryBuilder) Count(db *gorm.DB) (int, error) {
-	var c int
+func (qb *BasicModelQueryBuilder) Count(db *gorm.DB) (int64, error) {
+	var c int64
 	res := qb.buildQuery(db).Model(&BasicModel{}).Count(&c)
-	if res.RecordNotFound() {
+	if res.Error == gorm.ErrRecordNotFound {
 		c = 0
 	}
 	return c, res.Error
@@ -54,7 +58,7 @@ func (qb *BasicModelQueryBuilder) Count(db *gorm.DB) (int, error) {
 func (qb *BasicModelQueryBuilder) First(db *gorm.DB) (*BasicModel, error) {
 	ret := &BasicModel{}
 	res := qb.buildQuery(db).First(ret)
-	if res.RecordNotFound() {
+	if res.Error == gorm.ErrRecordNotFound {
 		ret = nil
 	}
 	return ret, res.Error
@@ -148,6 +152,10 @@ func (qb *BasicModelQueryBuilder) OrderByAge(asc bool) *BasicModelQueryBuilder {
 	return qb
 }
 
+func (t *ComplexModel) Create(db *gorm.DB) error {
+	return db.Create(t).Error
+}
+
 func (t *ComplexModel) Save(db *gorm.DB) error {
 	return db.Save(t).Error
 }
@@ -178,10 +186,10 @@ func (qb *ComplexModelQueryBuilder) buildQuery(db *gorm.DB) *gorm.DB {
 	return ret
 }
 
-func (qb *ComplexModelQueryBuilder) Count(db *gorm.DB) (int, error) {
-	var c int
+func (qb *ComplexModelQueryBuilder) Count(db *gorm.DB) (int64, error) {
+	var c int64
 	res := qb.buildQuery(db).Model(&ComplexModel{}).Count(&c)
-	if res.RecordNotFound() {
+	if res.Error == gorm.ErrRecordNotFound {
 		c = 0
 	}
 	return c, res.Error
@@ -190,7 +198,7 @@ func (qb *ComplexModelQueryBuilder) Count(db *gorm.DB) (int, error) {
 func (qb *ComplexModelQueryBuilder) First(db *gorm.DB) (*ComplexModel, error) {
 	ret := &ComplexModel{}
 	res := qb.buildQuery(db).First(ret)
-	if res.RecordNotFound() {
+	if res.Error == gorm.ErrRecordNotFound {
 		ret = nil
 	}
 	return ret, res.Error
@@ -284,7 +292,7 @@ func (qb *ComplexModelQueryBuilder) OrderByUpdatedAt(asc bool) *ComplexModelQuer
 	return qb
 }
 
-func (qb *ComplexModelQueryBuilder) WhereDeletedAt(p Predicate, value *time.Time) *ComplexModelQueryBuilder {
+func (qb *ComplexModelQueryBuilder) WhereDeletedAt(p Predicate, value time.Time) *ComplexModelQueryBuilder {
 	qb.where = append(qb.where, struct {
 		prefix string
 		value  interface{}
