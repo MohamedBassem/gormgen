@@ -22,7 +22,7 @@ package {{.PkgName}}
 {{if ne (.PkgName) "gormgen"}}
 import "github.com/MohamedBassem/gormgen"
 {{end}}
-import "github.com/jinzhu/gorm"
+import "gorm.io/gorm"
 import "fmt"
 
 {{range .Structs}}
@@ -57,11 +57,11 @@ import "fmt"
 		return ret
 	}
 
-	func (qb *{{.QueryBuilderName}}) Count(db *gorm.DB) (int, error) {
-		var c int
+	func (qb *{{.QueryBuilderName}}) Count(db *gorm.DB) (int64, error) {
+		var c int64
 		res := qb.buildQuery(db).Model(&{{.StructName}}{}).Count(&c)
-		if res.RecordNotFound() {
-			c = 0
+		if res.Error != nil && res.Error == gorm.ErrRecordNotFound {
+			ret = nil
 		}
 		return c, res.Error
 	}
@@ -69,7 +69,7 @@ import "fmt"
 	func (qb *{{.QueryBuilderName}}) First(db *gorm.DB) (*{{.StructName}}, error) {
 		ret := &{{.StructName}}{}
 		res := qb.buildQuery(db).First(ret)
-		if res.RecordNotFound() {
+		if res.Error != nil && res.Error == gorm.ErrRecordNotFound {
 			ret = nil
 		}
 		return ret, res.Error
